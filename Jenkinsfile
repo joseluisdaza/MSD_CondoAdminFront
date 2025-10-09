@@ -12,7 +12,7 @@ pipeline {
     }
 
     environment {
-        SOLUTION_DIR = 'CondominioFrontend'
+        SOLUTION_DIR = 'CondoFE'
         OUTPUT_DIR = "\\\\localhost\\Cursos\\Maestria Fullstack\\Builds\\CondoFrontEnd\\${BUILD_NUMBER}\\"
     }
 
@@ -29,17 +29,29 @@ pipeline {
     // }
     stage('Instalar dependencias') {
       steps {
-        bat 'npm install'
+        dir("${env.SOLUTION_DIR}") {
+          script {
+            bat 'npm install'
+          }
+        }
       }
     }
     stage('Build') {
       steps {
-        bat 'npm run build'
+        dir("${env.SOLUTION_DIR}") {
+          script {
+            bat 'npm run build'
+          }
+        }
       }
     }
     stage('Test') {
       steps {
-        bat 'npm test'
+        dir("${env.SOLUTION_DIR}") {
+          script {
+            bat 'npm test'
+          }
+        }
       }
     }
   }

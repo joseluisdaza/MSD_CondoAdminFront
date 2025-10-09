@@ -29,17 +29,17 @@ pipeline {
     // }
     stage('Instalar dependencias') {
       steps {
-        sh 'npm install'
+        bat 'npm install'
       }
     }
     stage('Build') {
       steps {
-        sh 'npm run build'
+        bat 'npm run build'
       }
     }
     stage('Test') {
       steps {
-        sh 'npm test'
+        bat 'npm test'
       }
     }
   }

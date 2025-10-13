@@ -43,7 +43,7 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
   }, [token]);
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', position: 'relative' }}>
+  <div style={{ display: 'flex', minHeight: '100vh', position: 'relative', background: 'rgb(244,228,69)', color: 'rgb(244,228,69)' }}>
       {/* Hamburger menu for mobile */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -52,13 +52,14 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
           top: 16,
           left: 16,
           zIndex: 1001,
-          background: 'transparent',
+          background: 'rgb(68,68,68)',
           border: 'none',
           fontSize: '22px',
           cursor: 'pointer',
           display: 'block',
           width: '40px',
           height: '40px',
+          color: 'rgb(244,228,69)',
         }}
         className="hamburger-menu"
         aria-label="Toggle menu"
@@ -69,8 +70,8 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
       <nav
         style={{
           width: sidebarOpen ? 200 : 0,
-          background: '#1976d2',
-          color: '#fff',
+          background: 'rgb(68,68,68)',
+          color: 'rgb(244,228,69)',
           padding: sidebarOpen ? 20 : 0,
           overflow: 'hidden',
           transition: 'width 0.3s, padding 0.3s',
@@ -82,130 +83,95 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
         }}
         className="sidebar-menu"
       >
-        <ul style={{ listStyle: 'none', padding: 0, marginTop: 60 }}>
+  <ul style={{ listStyle: 'none', padding: 0, marginTop: 60 }}>
           <li>
             <Link
               to="/"
-              style={{
-                padding: '8px 0',
-                fontWeight: location.pathname === '/' ? 'bold' : 'normal',
-                cursor: 'pointer',
-                background: location.pathname === '/' ? '#1565c0' : 'none',
-                borderRadius: location.pathname === '/' ? '4px' : '0',
-                color: '#fff',
-                textDecoration: 'none',
-                display: 'block',
-              }}
+              className={`sidebar-link${location.pathname === '/' ? ' active' : ''}`}
               onClick={() => setSidebarOpen(false)}
+              style={{ color: 'rgb(244,228,69)' }}
             >
+              <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
+                <svg width="18" height="18" fill="rgb(244,228,69)"><circle cx="9" cy="9" r="7" /></svg>
+              </span>
               Inicio
             </Link>
           </li>
           <li>
             <Link
               to="/expensas"
-              style={{
-                padding: '8px 0',
-                fontWeight: location.pathname === '/expensas' ? 'bold' : 'normal',
-                cursor: 'pointer',
-                background: location.pathname === '/expensas' ? '#1565c0' : 'none',
-                borderRadius: location.pathname === '/expensas' ? '4px' : '0',
-                color: '#fff',
-                textDecoration: 'none',
-                display: 'block',
-              }}
+              className={`sidebar-link${location.pathname === '/expensas' ? ' active' : ''}`}
               onClick={() => setSidebarOpen(false)}
+              style={{ color: 'rgb(244,228,69)' }}
             >
+              <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
+                <svg width="18" height="18" fill="rgb(244,228,69)"><rect x="4" y="4" width="10" height="10" rx="2" /></svg>
+              </span>
               Expensas
             </Link>
           </li>
           <li>
             <Link
               to="/reportes"
-              style={{
-                padding: '8px 0',
-                fontWeight: location.pathname === '/reportes' ? 'bold' : 'normal',
-                cursor: 'pointer',
-                background: location.pathname === '/reportes' ? '#1565c0' : 'none',
-                borderRadius: location.pathname === '/reportes' ? '4px' : '0',
-                color: '#fff',
-                textDecoration: 'none',
-                display: 'block',
-              }}
+              className={`sidebar-link${location.pathname === '/reportes' ? ' active' : ''}`}
               onClick={() => setSidebarOpen(false)}
+              style={{ color: 'rgb(244,228,69)' }}
             >
+              <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
+                <svg width="18" height="18" fill="rgb(244,228,69)"><path d="M3 15h12M6 10h6M9 5h0" stroke="rgb(244,228,69)" strokeWidth="2"/></svg>
+              </span>
               Reportes
             </Link>
           </li>
           <li>
             <Link
               to="/pagos"
-              style={{
-                padding: '8px 0',
-                fontWeight: location.pathname === '/pagos' ? 'bold' : 'normal',
-                cursor: 'pointer',
-                background: location.pathname === '/pagos' ? '#1565c0' : 'none',
-                borderRadius: location.pathname === '/pagos' ? '4px' : '0',
-                color: '#fff',
-                textDecoration: 'none',
-                display: 'block',
-              }}
+              className={`sidebar-link${location.pathname === '/pagos' ? ' active' : ''}`}
               onClick={() => setSidebarOpen(false)}
+              style={{ color: 'rgb(244,228,69)' }}
             >
+              <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
+                <svg width="18" height="18" fill="rgb(244,228,69)"><circle cx="9" cy="9" r="7" /><text x="9" y="13" textAnchor="middle" fontSize="10" fill="rgb(68,68,68)">$</text></svg>
+              </span>
               Pagos
             </Link>
           </li>
           <li>
             <Link
               to="/usuario"
-              style={{
-                padding: '8px 0',
-                fontWeight: location.pathname === '/usuario' ? 'bold' : 'normal',
-                cursor: 'pointer',
-                background: location.pathname === '/usuario' ? '#1565c0' : 'none',
-                borderRadius: location.pathname === '/usuario' ? '4px' : '0',
-                color: '#fff',
-                textDecoration: 'none',
-                display: 'block',
-              }}
+              className={`sidebar-link${location.pathname === '/usuario' ? ' active' : ''}`}
               onClick={() => setSidebarOpen(false)}
+              style={{ color: 'rgb(244,228,69)' }}
             >
+              <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
+                <svg width="18" height="18" fill="rgb(244,228,69)"><circle cx="9" cy="7" r="4" /><rect x="5" y="12" width="8" height="4" rx="2" /></svg>
+              </span>
               Usuario
             </Link>
           </li>
           <li>
             <Link
               to="/usuarios"
-              style={{
-                padding: '8px 0',
-                fontWeight: location.pathname === '/usuarios' ? 'bold' : 'normal',
-                cursor: 'pointer',
-                background: location.pathname === '/usuarios' ? '#1565c0' : 'none',
-                borderRadius: location.pathname === '/usuarios' ? '4px' : '0',
-                color: '#fff',
-                textDecoration: 'none',
-                display: 'block',
-              }}
+              className={`sidebar-link${location.pathname === '/usuarios' ? ' active' : ''}`}
               onClick={() => setSidebarOpen(false)}
+              style={{ color: 'rgb(244,228,69)' }}
             >
+              <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
+                <svg width="18" height="18" fill="rgb(244,228,69)"><circle cx="6" cy="8" r="3" /><circle cx="12" cy="8" r="3" /><rect x="3" y="13" width="12" height="3" rx="1.5" /></svg>
+              </span>
               Usuarios
             </Link>
           </li>
           <li>
             <Link
               to="/propiedades"
-              style={{
-                padding: '8px 0',
-                fontWeight: location.pathname === '/propiedades' ? 'bold' : 'normal',
-                cursor: 'pointer',
-                background: location.pathname === '/propiedades' ? '#1565c0' : 'none',
-                borderRadius: location.pathname === '/propiedades' ? '4px' : '0',
-                color: '#fff',
-                textDecoration: 'none',
-                display: 'block',
-              }}
+              className={`sidebar-link${location.pathname === '/propiedades' ? ' active' : ''}`}
               onClick={() => setSidebarOpen(false)}
+              style={{ color: 'rgb(244,228,69)' }}
             >
+              <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
+                <svg width="18" height="18" fill="rgb(244,228,69)"><rect x="3" y="7" width="12" height="8" rx="2" /><rect x="7" y="3" width="4" height="4" rx="1" /></svg>
+              </span>
               Propiedades
             </Link>
           </li>
@@ -220,6 +186,9 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
           marginTop: !sidebarOpen ? 56 : 0,
           transition: 'margin-left 0.3s, margin-top 0.3s',
           width: '100%',
+          animation: 'fadeIn 0.5s',
+          background: 'rgb(244,228,69)',
+          color: 'rgb(68,68,68)',
         }}
       >
         {useRoutes([
@@ -234,10 +203,30 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
       </main>
       {/* Responsive styles */}
       <style>{`
+        .sidebar-link {
+          transition: background 0.2s, color 0.2s;
+        }
+        .sidebar-link:hover {
+          background: rgb(244,228,69) !important;
+          color: rgb(68,68,68) !important;
+        }
+        .sidebar-link.active {
+          background: rgb(244,228,69) !important;
+          color: rgb(68,68,68) !important;
+        }
+        .sidebar-menu {
+          transition: width 0.4s cubic-bezier(.4,0,.2,1), padding 0.4s cubic-bezier(.4,0,.2,1);
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
         .hamburger-menu {
           font-size: 22px !important;
           width: 40px !important;
           height: 40px !important;
+          background: rgb(68,68,68) !important;
+          color: rgb(244,228,69) !important;
         }
         @media (max-width: 600px) {
           .sidebar-menu {
@@ -252,6 +241,8 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
             top: 10px !important;
             left: 10px !important;
             font-size: 28px !important;
+            background: rgb(68,68,68) !important;
+            color: rgb(244,228,69) !important;
           }
         }
       `}</style>

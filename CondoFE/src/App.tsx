@@ -9,7 +9,7 @@ function App() {
   if (!token) {
     return <LoginPage onLogin={setToken} />;
   }
-  return <LandingPage />;
+  return <LandingPage token={token} />;
 }
 
 export default App;

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ENDPOINTS } from './api/endpoints';
+import { Link, useLocation, useRoutes } from 'react-router-dom';
 import InicioContent from './components/InicioContent';
 import ExpensasContent from './components/ExpensasContent';
 import ReportesContent from './components/ReportesContent';
@@ -21,7 +22,7 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
     }
   ]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [selectedMenu, setSelectedMenu] = useState('Inicio');
+  const location = useLocation();
   // const [announcements, setAnnouncements] = useState<string[]>([
   const [announcements] = useState<string[]>([
     'Corte de agua el viernes 10am',
@@ -82,22 +83,132 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
         className="sidebar-menu"
       >
         <ul style={{ listStyle: 'none', padding: 0, marginTop: 60 }}>
-          {['Inicio', 'Expensas', 'Reportes', 'Pagos', 'Usuario', 'Usuarios', 'Propiedades'].map(item => (
-            <li
-              key={item}
+          <li>
+            <Link
+              to="/"
               style={{
                 padding: '8px 0',
-                fontWeight: selectedMenu === item ? 'bold' : 'normal',
+                fontWeight: location.pathname === '/' ? 'bold' : 'normal',
                 cursor: 'pointer',
-                background: selectedMenu === item ? '#1565c0' : 'none',
-                borderRadius: selectedMenu === item ? '4px' : '0',
+                background: location.pathname === '/' ? '#1565c0' : 'none',
+                borderRadius: location.pathname === '/' ? '4px' : '0',
                 color: '#fff',
+                textDecoration: 'none',
+                display: 'block',
               }}
-              onClick={() => { setSelectedMenu(item); setSidebarOpen(false); }}
+              onClick={() => setSidebarOpen(false)}
             >
-              {item}
-            </li>
-          ))}
+              Inicio
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/expensas"
+              style={{
+                padding: '8px 0',
+                fontWeight: location.pathname === '/expensas' ? 'bold' : 'normal',
+                cursor: 'pointer',
+                background: location.pathname === '/expensas' ? '#1565c0' : 'none',
+                borderRadius: location.pathname === '/expensas' ? '4px' : '0',
+                color: '#fff',
+                textDecoration: 'none',
+                display: 'block',
+              }}
+              onClick={() => setSidebarOpen(false)}
+            >
+              Expensas
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/reportes"
+              style={{
+                padding: '8px 0',
+                fontWeight: location.pathname === '/reportes' ? 'bold' : 'normal',
+                cursor: 'pointer',
+                background: location.pathname === '/reportes' ? '#1565c0' : 'none',
+                borderRadius: location.pathname === '/reportes' ? '4px' : '0',
+                color: '#fff',
+                textDecoration: 'none',
+                display: 'block',
+              }}
+              onClick={() => setSidebarOpen(false)}
+            >
+              Reportes
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/pagos"
+              style={{
+                padding: '8px 0',
+                fontWeight: location.pathname === '/pagos' ? 'bold' : 'normal',
+                cursor: 'pointer',
+                background: location.pathname === '/pagos' ? '#1565c0' : 'none',
+                borderRadius: location.pathname === '/pagos' ? '4px' : '0',
+                color: '#fff',
+                textDecoration: 'none',
+                display: 'block',
+              }}
+              onClick={() => setSidebarOpen(false)}
+            >
+              Pagos
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/usuario"
+              style={{
+                padding: '8px 0',
+                fontWeight: location.pathname === '/usuario' ? 'bold' : 'normal',
+                cursor: 'pointer',
+                background: location.pathname === '/usuario' ? '#1565c0' : 'none',
+                borderRadius: location.pathname === '/usuario' ? '4px' : '0',
+                color: '#fff',
+                textDecoration: 'none',
+                display: 'block',
+              }}
+              onClick={() => setSidebarOpen(false)}
+            >
+              Usuario
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/usuarios"
+              style={{
+                padding: '8px 0',
+                fontWeight: location.pathname === '/usuarios' ? 'bold' : 'normal',
+                cursor: 'pointer',
+                background: location.pathname === '/usuarios' ? '#1565c0' : 'none',
+                borderRadius: location.pathname === '/usuarios' ? '4px' : '0',
+                color: '#fff',
+                textDecoration: 'none',
+                display: 'block',
+              }}
+              onClick={() => setSidebarOpen(false)}
+            >
+              Usuarios
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/propiedades"
+              style={{
+                padding: '8px 0',
+                fontWeight: location.pathname === '/propiedades' ? 'bold' : 'normal',
+                cursor: 'pointer',
+                background: location.pathname === '/propiedades' ? '#1565c0' : 'none',
+                borderRadius: location.pathname === '/propiedades' ? '4px' : '0',
+                color: '#fff',
+                textDecoration: 'none',
+                display: 'block',
+              }}
+              onClick={() => setSidebarOpen(false)}
+            >
+              Propiedades
+            </Link>
+          </li>
         </ul>
       </nav>
       {/* Main content */}
@@ -111,15 +222,15 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
           width: '100%',
         }}
       >
-        {selectedMenu === 'Inicio' && (
-          <InicioContent debts={debts} announcements={announcements} loading={loading} />
-        )}
-        {selectedMenu === 'Expensas' && <ExpensasContent />}
-        {selectedMenu === 'Reportes' && <ReportesContent />}
-        {selectedMenu === 'Pagos' && <PagosContent />}
-        {selectedMenu === 'Usuario' && <UsuarioContent />}
-        {selectedMenu === 'Usuarios' && <UsuariosContent />}
-        {selectedMenu === 'Propiedades' && <PropiedadesContent />}
+        {useRoutes([
+          { path: '/', element: <InicioContent debts={debts} announcements={announcements} loading={loading} /> },
+          { path: '/expensas', element: <ExpensasContent /> },
+          { path: '/reportes', element: <ReportesContent /> },
+          { path: '/pagos', element: <PagosContent /> },
+          { path: '/usuario', element: <UsuarioContent /> },
+          { path: '/usuarios', element: <UsuariosContent /> },
+          { path: '/propiedades', element: <PropiedadesContent /> },
+        ])}
       </main>
       {/* Responsive styles */}
       <style>{`

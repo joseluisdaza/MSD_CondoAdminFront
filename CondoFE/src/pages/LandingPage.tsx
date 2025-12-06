@@ -196,7 +196,7 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
           { path: '/expensas', element: <ExpensasContent /> },
           { path: '/reportes', element: <ReportesContent /> },
           { path: '/pagos', element: <PagosContent /> },
-          { path: '/usuario', element: <UsuarioContent /> },
+          { path: '/usuario', element: <UsuarioContent token={token} /> },
           { path: '/usuarios', element: <UsuariosContent token={token} /> },
           { path: '/propiedades', element: <PropiedadesContent /> },
         ])}

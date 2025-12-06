@@ -14,7 +14,11 @@ interface UserFormData {
   lastName: string;
   legalId: string;
   login: string;
-  password: string;
+}
+
+interface PasswordChangeData {
+  newPassword: string;
+  confirmPassword: string;
 }
 
 interface UsuariosContentProps {
@@ -30,9 +34,14 @@ const UsuariosContent: React.FC<UsuariosContentProps> = ({ token }) => {
     userName: '',
     lastName: '',
     legalId: '',
-    login: '',
-    password: ''
+    login: ''
   });
+  const [passwordData, setPasswordData] = useState<PasswordChangeData>({
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [updatingPassword, setUpdatingPassword] = useState(false);
   const [updating, setUpdating] = useState(false);
 
   const fetchUsers = useCallback(async () => {
@@ -93,20 +102,52 @@ const UsuariosContent: React.FC<UsuariosContentProps> = ({ token }) => {
     }
   };
 
+  const updatePassword = async (userId: number, passwordData: PasswordChangeData) => {
+    try {
+      setUpdatingPassword(true);
+      setError(null);
+      
+      const response = await fetch(`${ENDPOINTS.users}/${userId}/password`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(passwordData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+
+      // Reset password form after successful update
+      setPasswordData({ newPassword: '', confirmPassword: '' });
+      setShowPasswordForm(false);
+      
+    } catch (err) {
+      console.error('Error updating password:', err);
+      setError(err instanceof Error ? err.message : 'Error desconocido al actualizar contraseña');
+    } finally {
+      setUpdatingPassword(false);
+    }
+  };
+
   const handleEditUser = (user: User) => {
     setEditingUser(user);
     setFormData({
       userName: user.userName,
       lastName: user.lastName,
       legalId: user.legalId,
-      login: user.login,
-      password: '' // Password field starts empty for security
+      login: user.login
     });
+    setShowPasswordForm(false);
   };
 
   const handleCancelEdit = () => {
     setEditingUser(null);
     resetForm();
+    resetPasswordForm();
+    setShowPasswordForm(false);
   };
 
   const resetForm = () => {
@@ -114,8 +155,14 @@ const UsuariosContent: React.FC<UsuariosContentProps> = ({ token }) => {
       userName: '',
       lastName: '',
       legalId: '',
-      login: '',
-      password: ''
+      login: ''
+    });
+  };
+
+  const resetPasswordForm = () => {
+    setPasswordData({
+      newPassword: '',
+      confirmPassword: ''
     });
   };
 
@@ -127,10 +174,27 @@ const UsuariosContent: React.FC<UsuariosContentProps> = ({ token }) => {
     }));
   };
 
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setPasswordData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   const handleSubmitEdit = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingUser) {
       updateUser(editingUser.id, formData);
+    }
+  };
+
+  const handleSubmitPassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingUser && passwordData.newPassword === passwordData.confirmPassword) {
+      updatePassword(editingUser.id, passwordData);
+    } else if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setError('Las contraseñas no coinciden');
     }
   };
 
@@ -215,20 +279,22 @@ const UsuariosContent: React.FC<UsuariosContentProps> = ({ token }) => {
                   <td style={{ padding: '12px', color: 'rgb(68,68,68)' }}>{user.legalId}</td>
                   <td style={{ padding: '12px', color: 'rgb(68,68,68)' }}>{user.login}</td>
                   <td style={{ padding: '12px' }}>
-                    <button
-                      onClick={() => handleEditUser(user)}
-                      style={{
-                        background: 'rgb(68,68,68)',
-                        color: 'rgb(244,228,69)',
-                        border: 'none',
-                        padding: '6px 12px',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '14px'
-                      }}
-                    >
-                      Editar
-                    </button>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        onClick={() => handleEditUser(user)}
+                        style={{
+                          background: 'rgb(68,68,68)',
+                          color: 'rgb(244,228,69)',
+                          border: 'none',
+                          padding: '6px 12px',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '14px'
+                        }}
+                      >
+                        Editar
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -332,28 +398,10 @@ const UsuariosContent: React.FC<UsuariosContentProps> = ({ token }) => {
                 />
               </div>
               
-              <div style={{ gridColumn: '1 / -1' }}>
-                <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
-                  Nueva Contraseña (opcional):
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  placeholder="Dejar vacío para mantener la contraseña actual"
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '1px solid #ddd',
-                    borderRadius: '4px',
-                    fontSize: '14px'
-                  }}
-                />
-              </div>
+
             </div>
             
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
               <button
                 type="submit"
                 disabled={updating}
@@ -367,7 +415,24 @@ const UsuariosContent: React.FC<UsuariosContentProps> = ({ token }) => {
                   fontSize: '14px'
                 }}
               >
-                {updating ? 'Actualizando...' : 'Guardar Cambios'}
+                {updating ? 'Actualizando...' : 'Guardar Datos'}
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => setShowPasswordForm(!showPasswordForm)}
+                disabled={updating}
+                style={{
+                  background: showPasswordForm ? 'rgb(244,228,69)' : 'transparent',
+                  color: showPasswordForm ? 'rgb(68,68,68)' : 'rgb(68,68,68)',
+                  border: '1px solid rgb(68,68,68)',
+                  padding: '10px 20px',
+                  borderRadius: '4px',
+                  cursor: updating ? 'not-allowed' : 'pointer',
+                  fontSize: '14px'
+                }}
+              >
+                {showPasswordForm ? 'Ocultar' : 'Cambiar'} Contraseña
               </button>
               
               <button
@@ -388,6 +453,116 @@ const UsuariosContent: React.FC<UsuariosContentProps> = ({ token }) => {
               </button>
             </div>
           </form>
+          
+          {/* Password Change Form */}
+          {showPasswordForm && (
+            <div style={{
+              marginTop: '20px',
+              padding: '20px',
+              background: '#f8f9fa',
+              borderRadius: '8px',
+              border: '1px solid #ddd'
+            }}>
+              <h4 style={{ color: 'rgb(68,68,68)', marginBottom: '15px' }}>
+                Cambiar Contraseña
+              </h4>
+              
+              <form onSubmit={handleSubmitPassword}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
+                      Nueva Contraseña:
+                    </label>
+                    <input
+                      type="password"
+                      name="newPassword"
+                      value={passwordData.newPassword}
+                      onChange={handlePasswordChange}
+                      required
+                      minLength={6}
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        border: '1px solid #ddd',
+                        borderRadius: '4px',
+                        fontSize: '14px'
+                      }}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
+                      Confirmar Contraseña:
+                    </label>
+                    <input
+                      type="password"
+                      name="confirmPassword"
+                      value={passwordData.confirmPassword}
+                      onChange={handlePasswordChange}
+                      required
+                      minLength={6}
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        border: '1px solid #ddd',
+                        borderRadius: '4px',
+                        fontSize: '14px'
+                      }}
+                    />
+                  </div>
+                </div>
+                
+                {passwordData.newPassword && passwordData.confirmPassword && 
+                 passwordData.newPassword !== passwordData.confirmPassword && (
+                  <div style={{
+                    color: '#c62828',
+                    fontSize: '14px',
+                    marginBottom: '15px'
+                  }}>
+                    Las contraseñas no coinciden
+                  </div>
+                )}
+                
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button
+                    type="submit"
+                    disabled={updatingPassword || passwordData.newPassword !== passwordData.confirmPassword || !passwordData.newPassword}
+                    style={{
+                      background: (updatingPassword || passwordData.newPassword !== passwordData.confirmPassword || !passwordData.newPassword) ? '#ccc' : 'rgb(68,68,68)',
+                      color: (updatingPassword || passwordData.newPassword !== passwordData.confirmPassword || !passwordData.newPassword) ? '#666' : 'rgb(244,228,69)',
+                      border: 'none',
+                      padding: '10px 20px',
+                      borderRadius: '4px',
+                      cursor: (updatingPassword || passwordData.newPassword !== passwordData.confirmPassword || !passwordData.newPassword) ? 'not-allowed' : 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    {updatingPassword ? 'Actualizando...' : 'Cambiar Contraseña'}
+                  </button>
+                  
+                  <button
+                    type="button"
+                    onClick={() => {
+                      resetPasswordForm();
+                      setShowPasswordForm(false);
+                    }}
+                    disabled={updatingPassword}
+                    style={{
+                      background: 'transparent',
+                      color: 'rgb(68,68,68)',
+                      border: '1px solid rgb(68,68,68)',
+                      padding: '10px 20px',
+                      borderRadius: '4px',
+                      cursor: updatingPassword ? 'not-allowed' : 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
         </div>
       )}
     </div>

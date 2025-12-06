@@ -1,8 +1,8 @@
 
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import LoginPage from './LoginPage';
-import LandingPage from './LandingPage';
+import LoginPage from './pages/LoginPage';
+import LandingPage from './pages/LandingPage';
 
 function App() {
   const [token, setToken] = useState<string | null>(null);

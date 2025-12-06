@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { ENDPOINTS } from './api/endpoints';
-import { t } from './i18n/resources';
-import type { SupportedLang, LoginKey } from './i18n/resources';
+import { ENDPOINTS } from '../api/endpoints';
+import { t } from '../i18n/resources';
+import type { SupportedLang, LoginKey } from '../i18n/resources';
 
 const LoginPage: React.FC<{ onLogin: (token: string) => void }> = ({ onLogin }) => {
   const [login, setLogin] = useState('');

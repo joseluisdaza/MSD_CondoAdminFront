@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { ENDPOINTS } from './api/endpoints';
+import { ENDPOINTS } from '../api/endpoints';
 import { Link, useLocation, useRoutes } from 'react-router-dom';
-import InicioContent from './components/InicioContent';
-import ExpensasContent from './components/ExpensasContent';
-import ReportesContent from './components/ReportesContent';
-import PagosContent from './components/PagosContent';
-import UsuarioContent from './components/UsuarioContent';
-import UsuariosContent from './components/UsuariosContent';
-import PropiedadesContent from './components/PropiedadesContent';
+import InicioContent from '../components/InicioContent';
+import ExpensasContent from '../components/ExpensasContent';
+import ReportesContent from '../components/ReportesContent';
+import PagosContent from '../components/PagosContent';
+import UsuarioContent from '../components/UsuarioContent';
+import UsuariosContent from '../components/UsuariosContent';
+import PropiedadesContent from '../components/PropiedadesContent';
 
 interface Debt {
   code: string;
@@ -197,7 +197,7 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
           { path: '/reportes', element: <ReportesContent /> },
           { path: '/pagos', element: <PagosContent /> },
           { path: '/usuario', element: <UsuarioContent /> },
-          { path: '/usuarios', element: <UsuariosContent /> },
+          { path: '/usuarios', element: <UsuariosContent token={token} /> },
           { path: '/propiedades', element: <PropiedadesContent /> },
         ])}
       </main>

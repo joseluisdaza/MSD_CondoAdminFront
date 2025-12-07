@@ -89,7 +89,6 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
             <Link
               to="/"
               className={`sidebar-link${location.pathname === '/' ? ' active' : ''}`}
-              onClick={() => setSidebarOpen(false)}
               style={{ color: 'rgb(244,228,69)' }}
             >
               <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
@@ -102,7 +101,6 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
             <Link
               to="/expensas"
               className={`sidebar-link${location.pathname === '/expensas' ? ' active' : ''}`}
-              onClick={() => setSidebarOpen(false)}
               style={{ color: 'rgb(244,228,69)' }}
             >
               <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
@@ -115,7 +113,6 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
             <Link
               to="/reportes"
               className={`sidebar-link${location.pathname === '/reportes' ? ' active' : ''}`}
-              onClick={() => setSidebarOpen(false)}
               style={{ color: 'rgb(244,228,69)' }}
             >
               <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
@@ -128,7 +125,6 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
             <Link
               to="/pagos"
               className={`sidebar-link${location.pathname === '/pagos' ? ' active' : ''}`}
-              onClick={() => setSidebarOpen(false)}
               style={{ color: 'rgb(244,228,69)' }}
             >
               <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
@@ -141,7 +137,6 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
             <Link
               to="/usuario"
               className={`sidebar-link${location.pathname === '/usuario' ? ' active' : ''}`}
-              onClick={() => setSidebarOpen(false)}
               style={{ color: 'rgb(244,228,69)' }}
             >
               <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
@@ -154,7 +149,6 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
             <Link
               to="/usuarios"
               className={`sidebar-link${location.pathname === '/usuarios' ? ' active' : ''}`}
-              onClick={() => setSidebarOpen(false)}
               style={{ color: 'rgb(244,228,69)' }}
             >
               <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
@@ -167,7 +161,6 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
             <Link
               to="/propiedades"
               className={`sidebar-link${location.pathname === '/propiedades' ? ' active' : ''}`}
-              onClick={() => setSidebarOpen(false)}
               style={{ color: 'rgb(244,228,69)' }}
             >
               <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
@@ -180,7 +173,6 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
             <Link
               to="/roles"
               className={`sidebar-link${location.pathname === '/roles' ? ' active' : ''}`}
-              onClick={() => setSidebarOpen(false)}
               style={{ color: 'rgb(244,228,69)' }}
             >
               <span style={{ marginRight: 8, verticalAlign: 'middle' }}>

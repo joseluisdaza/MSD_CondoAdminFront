@@ -243,42 +243,6 @@ const RolesContent: React.FC<RolesContentProps> = ({ token }) => {
         Actualizar Datos
       </button>
 
-      {/* Roles List (Read-only) */}
-      <div style={{ marginBottom: '30px' }}>
-        <h3 style={{ color: 'rgb(68,68,68)', marginBottom: '15px' }}>Roles del Sistema</h3>
-        {roles.length === 0 ? (
-          <p>No se encontraron roles.</p>
-        ) : (
-          <table style={{
-            width: '100%',
-            borderCollapse: 'collapse',
-            background: 'white',
-            borderRadius: '8px',
-            overflow: 'hidden',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            marginBottom: '20px'
-          }}>
-            <thead>
-              <tr style={{ background: 'rgb(68,68,68)', color: 'rgb(244,228,69)' }}>
-                <th style={{ padding: '12px', textAlign: 'left' }}>ID</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>Nombre del Rol</th>
-              </tr>
-            </thead>
-            <tbody>
-              {roles.map((role, index) => (
-                <tr key={role.id} style={{
-                  background: index % 2 === 0 ? '#f8f9fa' : 'white',
-                  borderBottom: '1px solid #e0e0e0'
-                }}>
-                  <td style={{ padding: '12px', color: 'rgb(68,68,68)' }}>{role.id}</td>
-                  <td style={{ padding: '12px', color: 'rgb(68,68,68)' }}>{role.name}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-
       {/* Role Assignment Section */}
       <div style={{
         background: 'white',

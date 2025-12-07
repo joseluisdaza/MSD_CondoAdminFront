@@ -8,6 +8,7 @@ import PagosContent from '../components/PagosContent';
 import UsuarioContent from '../components/UsuarioContent';
 import UsuariosContent from '../components/UsuariosContent';
 import PropiedadesContent from '../components/PropiedadesContent';
+import RolesContent from '../components/RolesContent';
 
 interface Debt {
   code: string;
@@ -175,6 +176,19 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
               Propiedades
             </Link>
           </li>
+          <li>
+            <Link
+              to="/roles"
+              className={`sidebar-link${location.pathname === '/roles' ? ' active' : ''}`}
+              onClick={() => setSidebarOpen(false)}
+              style={{ color: 'rgb(244,228,69)' }}
+            >
+              <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
+                <svg width="18" height="18" fill="rgb(244,228,69)"><rect x="2" y="6" width="14" height="8" rx="1" /><circle cx="6" cy="4" r="2" /><circle cx="12" cy="4" r="2" /></svg>
+              </span>
+              Roles
+            </Link>
+          </li>
         </ul>
       </nav>
       {/* Main content */}
@@ -199,6 +213,7 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
           { path: '/usuario', element: <UsuarioContent token={token} /> },
           { path: '/usuarios', element: <UsuariosContent token={token} /> },
           { path: '/propiedades', element: <PropiedadesContent /> },
+          { path: '/roles', element: <RolesContent token={token} /> },
         ])}
       </main>
       {/* Responsive styles */}

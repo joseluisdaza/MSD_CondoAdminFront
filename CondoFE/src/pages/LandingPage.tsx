@@ -191,10 +191,12 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
           marginLeft: sidebarOpen ? 200 : 0,
           marginTop: !sidebarOpen ? 56 : 0,
           transition: 'margin-left 0.3s, margin-top 0.3s',
-          width: '100%',
+          width: `calc(100vw - ${sidebarOpen ? 200 : 0}px)`,
+          minHeight: '100vh',
           animation: 'fadeIn 0.5s',
           background: 'rgb(244,228,69)',
           color: 'rgb(68,68,68)',
+          boxSizing: 'border-box',
         }}
       >
         {useRoutes([
@@ -243,6 +245,7 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
           main {
             margin-left: 0 !important;
             padding-top: 60px !important;
+            width: 100vw !important;
           }
           .hamburger-menu {
             top: 10px !important;

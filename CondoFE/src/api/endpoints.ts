@@ -10,6 +10,7 @@ export const ENDPOINTS = {
   propertyType: `${API_BASE_URL}/PropertyType`,
   users: `${API_BASE_URL}/Users`,
   role: `${API_BASE_URL}/Role`,
+  expenseCategories: `${API_BASE_URL}/ExpenseCategories`,
 
   // Add other endpoints here
 };

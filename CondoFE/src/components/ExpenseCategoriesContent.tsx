@@ -72,7 +72,7 @@ const ExpenseCategoriesContent: React.FC<ExpenseCategoriesContentProps> = ({ tok
       });
 
       if (response.ok) {
-        setMessage({ text: 'Categoría de gasto creada exitosamente', type: 'success' });
+        setMessage({ text: 'Categoría de expensa creada exitosamente', type: 'success' });
         setIsCreating(false);
         setFormData({
           category: '',
@@ -82,13 +82,13 @@ const ExpenseCategoriesContent: React.FC<ExpenseCategoriesContentProps> = ({ tok
       } else {
         const errorText = await response.text();
         setMessage({ 
-          text: errorText || `Error ${response.status}: No se pudo crear la categoría de gasto`, 
+          text: errorText || `Error ${response.status}: No se pudo crear la categoría de expensa`, 
           type: 'error' 
         });
       }
     } catch (error) {
       console.error('Error creating expense category:', error);
-      setMessage({ text: 'Error de conexión al crear categoría de gasto', type: 'error' });
+      setMessage({ text: 'Error de conexión al crear categoría de expensa', type: 'error' });
     }
   };
 
@@ -113,26 +113,26 @@ const ExpenseCategoriesContent: React.FC<ExpenseCategoriesContentProps> = ({ tok
       });
 
       if (response.ok) {
-        setMessage({ text: 'Categoría de gasto actualizada exitosamente', type: 'success' });
+        setMessage({ text: 'Categoría de expensa actualizada exitosamente', type: 'success' });
         setIsEditing(false);
         setSelectedExpenseCategory(null);
         fetchExpenseCategories(); // Reload the list
       } else {
         const errorText = await response.text();
         setMessage({ 
-          text: errorText || `Error ${response.status}: No se pudo actualizar la categoría de gasto`, 
+          text: errorText || `Error ${response.status}: No se pudo actualizar la categoría de expensa`, 
           type: 'error' 
         });
       }
     } catch (error) {
       console.error('Error updating expense category:', error);
-      setMessage({ text: 'Error de conexión al actualizar categoría de gasto', type: 'error' });
+      setMessage({ text: 'Error de conexión al actualizar categoría de expensa', type: 'error' });
     }
   };
 
   // Delete expense category
   const deleteExpenseCategory = async (categoryId: number) => {
-    if (!window.confirm('¿Está seguro de que desea eliminar esta categoría de gasto?')) {
+    if (!window.confirm('¿Está seguro de que desea eliminar esta categoría de expensa?')) {
       return;
     }
 
@@ -146,18 +146,18 @@ const ExpenseCategoriesContent: React.FC<ExpenseCategoriesContentProps> = ({ tok
       });
 
       if (response.ok) {
-        setMessage({ text: 'Categoría de gasto eliminada exitosamente', type: 'success' });
+        setMessage({ text: 'Categoría de expensa eliminada exitosamente', type: 'success' });
         fetchExpenseCategories(); // Reload the list
       } else {
         const errorText = await response.text();
         setMessage({ 
-          text: errorText || `Error ${response.status}: No se pudo eliminar la categoría de gasto`, 
+          text: errorText || `Error ${response.status}: No se pudo eliminar la categoría de expensa`, 
           type: 'error' 
         });
       }
     } catch (error) {
       console.error('Error deleting expense category:', error);
-      setMessage({ text: 'Error de conexión al eliminar categoría de gasto', type: 'error' });
+      setMessage({ text: 'Error de conexión al eliminar categoría de expensa', type: 'error' });
     }
   };
 
@@ -262,7 +262,7 @@ const ExpenseCategoriesContent: React.FC<ExpenseCategoriesContentProps> = ({ tok
             opacity: isEditing || isCreating ? 0.6 : 1,
           }}
         >
-          Crear Nueva Categoría de Gasto
+          Crear Nueva Categoría de expensa
         </button>
       </div>
 
@@ -278,7 +278,7 @@ const ExpenseCategoriesContent: React.FC<ExpenseCategoriesContentProps> = ({ tok
           }}
         >
           <h3 style={{ color: 'rgb(68,68,68)', marginBottom: '15px' }}>
-            {isCreating ? 'Crear Nueva Categoría de Gasto' : 'Editar Categoría de Gasto'}
+            {isCreating ? 'Crear Nueva Categoría de expensa' : 'Editar Categoría de expensa'}
           </h3>
           <form onSubmit={handleSubmit}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '15px' }}>

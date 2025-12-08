@@ -41,13 +41,13 @@ const ExpenseCategoriesContent: React.FC<ExpenseCategoriesContentProps> = ({ tok
       } else {
         const errorText = await response.text();
         setMessage({ 
-          text: errorText || `Error ${response.status}: No se pudieron cargar las categorías de gastos`, 
+          text: errorText || `Error ${response.status}: No se pudieron cargar las categorías de expensas`, 
           type: 'error' 
         });
       }
     } catch (error) {
       console.error('Error fetching expense categories:', error);
-      setMessage({ text: 'Error de conexión al cargar categorías de gastos', type: 'error' });
+      setMessage({ text: 'Error de conexión al cargar categorías de expensas', type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -229,7 +229,7 @@ const ExpenseCategoriesContent: React.FC<ExpenseCategoriesContentProps> = ({ tok
 
   return (
     <div style={{ padding: '20px' }}>
-      <h1 style={{ color: 'rgb(68,68,68)', marginBottom: '20px' }}>Categorías de Gastos</h1>
+      <h1 style={{ color: 'rgb(68,68,68)', marginBottom: '20px' }}>Categorías de expensas</h1>
       
       {/* Message display */}
       {message && (
@@ -358,7 +358,7 @@ const ExpenseCategoriesContent: React.FC<ExpenseCategoriesContentProps> = ({ tok
       {/* Expense Categories List */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '20px' }}>
-          <div style={{ color: 'rgb(68,68,68)' }}>Cargando categorías de gastos...</div>
+          <div style={{ color: 'rgb(68,68,68)' }}>Cargando categorías de expensas...</div>
         </div>
       ) : (
         <div style={{ overflowX: 'auto' }}>
@@ -392,7 +392,7 @@ const ExpenseCategoriesContent: React.FC<ExpenseCategoriesContentProps> = ({ tok
                       fontStyle: 'italic',
                     }}
                   >
-                    No hay categorías de gastos registradas
+                    No hay categorías de expensas registradas
                   </td>
                 </tr>
               ) : (

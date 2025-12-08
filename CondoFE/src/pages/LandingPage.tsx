@@ -227,7 +227,7 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
       >
         {useRoutes([
           { path: '/', element: <InicioContent debts={debts} announcements={announcements} loading={loading} /> },
-          { path: '/expensas', element: <ExpensasContent /> },
+          { path: '/expensas', element: <ExpensasContent token={token} /> },
           { path: '/reportes', element: <ReportesContent /> },
           { path: '/pagos', element: <PagosContent /> },
           { path: '/usuario', element: <UsuarioContent token={token} /> },

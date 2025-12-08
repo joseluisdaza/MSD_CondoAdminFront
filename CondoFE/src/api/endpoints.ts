@@ -11,6 +11,8 @@ export const ENDPOINTS = {
   users: `${API_BASE_URL}/Users`,
   role: `${API_BASE_URL}/Role`,
   expenseCategories: `${API_BASE_URL}/ExpenseCategories`,
+  expenses: `${API_BASE_URL}/Expenses`,
+  paymentStatus: `${API_BASE_URL}/PaymentStatus`,
 
   // Add other endpoints here
 };

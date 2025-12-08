@@ -219,7 +219,7 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
           { path: '/pagos', element: <PagosContent /> },
           { path: '/usuario', element: <UsuarioContent token={token} /> },
           { path: '/usuarios', element: <UsuariosContent token={token} /> },
-          { path: '/propiedades', element: <PropiedadesContent /> },
+          { path: '/propiedades', element: <PropiedadesContent token={token} /> },
           { path: '/tipo-propiedades', element: <PropertyTypesContent token={token} /> },
           { path: '/roles', element: <RolesContent token={token} /> },
         ])}

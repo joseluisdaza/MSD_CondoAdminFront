@@ -245,7 +245,8 @@ const ServiceExpensesContent: React.FC<ServiceExpensesContentProps> = ({ token }
         amount: expense.totalAmount,
         description: `Pago de expensa de servicio: ${expense.description}`,
         receivePhoto: "", // Empty string as required
-        statusId: 2 // Always send statusId as 2
+        statusId: 2, // Always send statusId as 2
+        serviceExpenseId: expense.id // Add the serviceExpenseId
       };
 
       const response = await fetch(ENDPOINTS.servicePayments, {

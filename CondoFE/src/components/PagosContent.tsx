@@ -329,6 +329,7 @@ const PagosContent: React.FC<PagosContentProps> = ({ token }) => {
             <thead>
               <tr style={{ backgroundColor: 'rgb(68,68,68)', color: 'rgb(244,228,69)' }}>
                 <th style={{ padding: '12px', textAlign: 'left' }}>ID</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>Propiedad</th>
                 <th style={{ padding: '12px', textAlign: 'left' }}>Descripción</th>
                 <SortHeader field="statusDescription">Estado</SortHeader>
                 <SortHeader field="amount">Monto</SortHeader>
@@ -343,7 +344,7 @@ const PagosContent: React.FC<PagosContentProps> = ({ token }) => {
               {sortedAndFilteredExpenses.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={9}
+                    colSpan={10}
                     style={{
                       padding: '20px',
                       textAlign: 'center',
@@ -367,6 +368,9 @@ const PagosContent: React.FC<PagosContentProps> = ({ token }) => {
                     }}
                   >
                     <td style={{ padding: '12px', color: 'rgb(68,68,68)' }}>{expense.id}</td>
+                    <td style={{ padding: '12px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
+                      {expense.propertyTower}-{expense.propertyCode}
+                    </td>
                     <td style={{ padding: '12px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
                       {expense.description}
                     </td>

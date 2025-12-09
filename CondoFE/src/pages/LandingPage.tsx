@@ -117,18 +117,6 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
           </li>
           <li>
             <Link
-              to="/reportes"
-              className={`sidebar-link${location.pathname === '/reportes' ? ' active' : ''}`}
-              style={{ color: 'rgb(244,228,69)' }}
-            >
-              <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
-                <svg width="18" height="18" fill="rgb(244,228,69)"><path d="M3 15h12M6 10h6M9 5h0" stroke="rgb(244,228,69)" strokeWidth="2"/></svg>
-              </span>
-              Reportes
-            </Link>
-          </li>
-          <li>
-            <Link
               to="/pagos"
               className={`sidebar-link${location.pathname === '/pagos' ? ' active' : ''}`}
               style={{ color: 'rgb(244,228,69)' }}
@@ -141,54 +129,6 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
           </li>
           <li>
             <Link
-              to="/usuario"
-              className={`sidebar-link${location.pathname === '/usuario' ? ' active' : ''}`}
-              style={{ color: 'rgb(244,228,69)' }}
-            >
-              <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
-                <svg width="18" height="18" fill="rgb(244,228,69)"><circle cx="9" cy="7" r="4" /><rect x="5" y="12" width="8" height="4" rx="2" /></svg>
-              </span>
-              Usuario
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/usuarios"
-              className={`sidebar-link${location.pathname === '/usuarios' ? ' active' : ''}`}
-              style={{ color: 'rgb(244,228,69)' }}
-            >
-              <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
-                <svg width="18" height="18" fill="rgb(244,228,69)"><circle cx="6" cy="8" r="3" /><circle cx="12" cy="8" r="3" /><rect x="3" y="13" width="12" height="3" rx="1.5" /></svg>
-              </span>
-              Usuarios
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/propiedades"
-              className={`sidebar-link${location.pathname === '/propiedades' ? ' active' : ''}`}
-              style={{ color: 'rgb(244,228,69)' }}
-            >
-              <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
-                <svg width="18" height="18" fill="rgb(244,228,69)"><rect x="3" y="7" width="12" height="8" rx="2" /><rect x="7" y="3" width="4" height="4" rx="1" /></svg>
-              </span>
-              Propiedades
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/tipo-propiedades"
-              className={`sidebar-link${location.pathname === '/tipo-propiedades' ? ' active' : ''}`}
-              style={{ color: 'rgb(244,228,69)' }}
-            >
-              <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
-                <svg width="18" height="18" fill="rgb(244,228,69)"><rect x="2" y="4" width="14" height="10" rx="2" /><rect x="6" y="2" width="6" height="4" rx="1" /><circle cx="7" cy="8" r="1" /><circle cx="11" cy="8" r="1" /></svg>
-              </span>
-              Tipo de Propiedad
-            </Link>
-          </li>
-          <li>
-            <Link
               to="/categorias-expensas"
               className={`sidebar-link${location.pathname === '/categorias-expensas' ? ' active' : ''}`}
               style={{ color: 'rgb(244,228,69)' }}
@@ -197,30 +137,6 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
                 <svg width="18" height="18" fill="rgb(244,228,69)"><rect x="3" y="3" width="12" height="12" rx="2" /><line x1="7" y1="7" x2="11" y2="7" stroke="rgb(68,68,68)" strokeWidth="2" /><line x1="7" y1="10" x2="11" y2="10" stroke="rgb(68,68,68)" strokeWidth="2" /></svg>
               </span>
               Categorías de expensas
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/duenos-propiedades"
-              className={`sidebar-link${location.pathname === '/duenos-propiedades' ? ' active' : ''}`}
-              style={{ color: 'rgb(244,228,69)' }}
-            >
-              <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
-                <svg width="18" height="18" fill="rgb(244,228,69)"><rect x="2" y="4" width="14" height="10" rx="2" /><circle cx="6" cy="8" r="1.5" /><circle cx="12" cy="8" r="1.5" /><path d="M9 11h4v2H9z" /><path d="M5 11h2v2H5z" /></svg>
-              </span>
-              Gestión de Propietarios
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/tipos-servicio"
-              className={`sidebar-link${location.pathname === '/tipos-servicio' ? ' active' : ''}`}
-              style={{ color: 'rgb(244,228,69)' }}
-            >
-              <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
-                <svg width="18" height="18" fill="rgb(244,228,69)"><rect x="2" y="2" width="14" height="14" rx="2" /><circle cx="6" cy="6" r="2" /><circle cx="12" cy="6" r="2" /><circle cx="6" cy="12" r="2" /><circle cx="12" cy="12" r="2" /></svg>
-              </span>
-              Tipos de Servicio
             </Link>
           </li>
           <li>
@@ -249,6 +165,78 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
           </li>
           <li>
             <Link
+              to="/tipos-servicio"
+              className={`sidebar-link${location.pathname === '/tipos-servicio' ? ' active' : ''}`}
+              style={{ color: 'rgb(244,228,69)' }}
+            >
+              <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
+                <svg width="18" height="18" fill="rgb(244,228,69)"><rect x="2" y="2" width="14" height="14" rx="2" /><circle cx="6" cy="6" r="2" /><circle cx="12" cy="6" r="2" /><circle cx="6" cy="12" r="2" /><circle cx="12" cy="12" r="2" /></svg>
+              </span>
+              Tipos de Servicio
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/propiedades"
+              className={`sidebar-link${location.pathname === '/propiedades' ? ' active' : ''}`}
+              style={{ color: 'rgb(244,228,69)' }}
+            >
+              <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
+                <svg width="18" height="18" fill="rgb(244,228,69)"><rect x="3" y="7" width="12" height="8" rx="2" /><rect x="7" y="3" width="4" height="4" rx="1" /></svg>
+              </span>
+              Propiedades
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/tipo-propiedades"
+              className={`sidebar-link${location.pathname === '/tipo-propiedades' ? ' active' : ''}`}
+              style={{ color: 'rgb(244,228,69)' }}
+            >
+              <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
+                <svg width="18" height="18" fill="rgb(244,228,69)"><rect x="2" y="4" width="14" height="10" rx="2" /><rect x="6" y="2" width="6" height="4" rx="1" /><circle cx="7" cy="8" r="1" /><circle cx="11" cy="8" r="1" /></svg>
+              </span>
+              Tipo de Propiedad
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/usuario"
+              className={`sidebar-link${location.pathname === '/usuario' ? ' active' : ''}`}
+              style={{ color: 'rgb(244,228,69)' }}
+            >
+              <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
+                <svg width="18" height="18" fill="rgb(244,228,69)"><circle cx="9" cy="7" r="4" /><rect x="5" y="12" width="8" height="4" rx="2" /></svg>
+              </span>
+              Usuario
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/usuarios"
+              className={`sidebar-link${location.pathname === '/usuarios' ? ' active' : ''}`}
+              style={{ color: 'rgb(244,228,69)' }}
+            >
+              <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
+                <svg width="18" height="18" fill="rgb(244,228,69)"><circle cx="6" cy="8" r="3" /><circle cx="12" cy="8" r="3" /><rect x="3" y="13" width="12" height="3" rx="1.5" /></svg>
+              </span>
+              Usuarios
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/duenos-propiedades"
+              className={`sidebar-link${location.pathname === '/duenos-propiedades' ? ' active' : ''}`}
+              style={{ color: 'rgb(244,228,69)' }}
+            >
+              <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
+                <svg width="18" height="18" fill="rgb(244,228,69)"><rect x="2" y="4" width="14" height="10" rx="2" /><circle cx="6" cy="8" r="1.5" /><circle cx="12" cy="8" r="1.5" /><path d="M9 11h4v2H9z" /><path d="M5 11h2v2H5z" /></svg>
+              </span>
+              Gestión de Propietarios
+            </Link>
+          </li>
+          <li>
+            <Link
               to="/roles"
               className={`sidebar-link${location.pathname === '/roles' ? ' active' : ''}`}
               style={{ color: 'rgb(244,228,69)' }}
@@ -257,6 +245,18 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
                 <svg width="18" height="18" fill="rgb(244,228,69)"><rect x="2" y="6" width="14" height="8" rx="1" /><circle cx="6" cy="4" r="2" /><circle cx="12" cy="4" r="2" /></svg>
               </span>
               Roles
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/reportes"
+              className={`sidebar-link${location.pathname === '/reportes' ? ' active' : ''}`}
+              style={{ color: 'rgb(244,228,69)' }}
+            >
+              <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
+                <svg width="18" height="18" fill="rgb(244,228,69)"><path d="M3 15h12M6 10h6M9 5h0" stroke="rgb(244,228,69)" strokeWidth="2"/></svg>
+              </span>
+              Reportes
             </Link>
           </li>
         </ul>

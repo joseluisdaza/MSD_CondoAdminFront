@@ -16,6 +16,7 @@ export const ENDPOINTS = {
   userProperties: `${API_BASE_URL}/Property/ByUser`,
   expensePayments: `${API_BASE_URL}/ExpensePayments`,
   propertyOwners: `${API_BASE_URL}/PropertyOwners`,
+  serviceTypes: `${API_BASE_URL}/ServiceTypes`,
 
   // Add other endpoints here
 };

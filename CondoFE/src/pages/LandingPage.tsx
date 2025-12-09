@@ -132,7 +132,7 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
               <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
                 <svg width="18" height="18" fill="rgb(244,228,69)"><circle cx="9" cy="9" r="7" /><text x="9" y="13" textAnchor="middle" fontSize="10" fill="rgb(68,68,68)">$</text></svg>
               </span>
-              Pagos
+              Pago de Expensas
             </Link>
           </li>
           <li>

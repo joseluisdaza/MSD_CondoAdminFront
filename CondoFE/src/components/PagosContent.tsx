@@ -36,7 +36,6 @@ type SortField = 'startDate' | 'paymentLimitDate' | 'amount' | 'statusDescriptio
 type SortDirection = 'asc' | 'desc';
 
 const PagosContent: React.FC<PagosContentProps> = ({ token }) => {
-  const [properties, setProperties] = useState<Property[]>([]);
   const [allExpenses, setAllExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
@@ -57,7 +56,6 @@ const PagosContent: React.FC<PagosContentProps> = ({ token }) => {
 
       if (response.ok) {
         const data = await response.json();
-        setProperties(data);
         return data;
       } else {
         const errorText = await response.text();
@@ -109,7 +107,7 @@ const PagosContent: React.FC<PagosContentProps> = ({ token }) => {
       }
 
       // Fetch expenses for all properties
-      const expensePromises = userProperties.map(property => 
+      const expensePromises = userProperties.map((property: Property) => 
         fetchPropertyExpenses(property.id)
       );
       

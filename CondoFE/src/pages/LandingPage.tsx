@@ -12,6 +12,7 @@ import PropertyTypesContent from '../components/PropertyTypesContent';
 import ExpenseCategoriesContent from '../components/ExpenseCategoriesContent';
 import PropertyOwnersContent from '../components/PropertyOwnersContent';
 import ServiceTypesContent from '../components/ServiceTypesContent';
+import ServiceExpensesContent from '../components/ServiceExpensesContent';
 import RolesContent from '../components/RolesContent';
 
 interface Debt {
@@ -223,6 +224,18 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
           </li>
           <li>
             <Link
+              to="/expensas-servicio"
+              className={`sidebar-link${location.pathname === '/expensas-servicio' ? ' active' : ''}`}
+              style={{ color: 'rgb(244,228,69)' }}
+            >
+              <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
+                <svg width="18" height="18" fill="rgb(244,228,69)"><rect x="2" y="3" width="14" height="12" rx="2" /><line x1="5" y1="7" x2="13" y2="7" stroke="rgb(68,68,68)" strokeWidth="1.5" /><line x1="5" y1="10" x2="11" y2="10" stroke="rgb(68,68,68)" strokeWidth="1.5" /><circle cx="12" cy="6" r="2" /></svg>
+              </span>
+              Expensas de Servicio
+            </Link>
+          </li>
+          <li>
+            <Link
               to="/roles"
               className={`sidebar-link${location.pathname === '/roles' ? ' active' : ''}`}
               style={{ color: 'rgb(244,228,69)' }}
@@ -263,6 +276,7 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
           { path: '/categorias-expensas', element: <ExpenseCategoriesContent token={token} /> },
           { path: '/duenos-propiedades', element: <PropertyOwnersContent token={token} /> },
           { path: '/tipos-servicio', element: <ServiceTypesContent token={token} /> },
+          { path: '/expensas-servicio', element: <ServiceExpensesContent token={token} /> },
           { path: '/roles', element: <RolesContent token={token} /> },
         ])}
       </main>

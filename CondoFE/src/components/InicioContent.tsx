@@ -1,15 +1,30 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import type { UserRole } from '../hooks/useUserRole';
+import { canViewModule } from '../hooks/useUserRole';
 
 interface NavigationCard {
   title: string;
   description: string;
-  icon: JSX.Element;
+  icon: React.ReactElement;
   path: string;
   color: string;
+  module: string;
 }
 
-const InicioContent: React.FC<{ debts: any[]; announcements: string[]; loading: boolean }> = ({ debts, announcements, loading }) => {
+interface Debt {
+  code: string;
+  amount: number;
+}
+
+interface InicioContentProps {
+  debts: Debt[];
+  announcements: string[];
+  loading: boolean;
+  userRoles: UserRole[];
+}
+
+const InicioContent: React.FC<InicioContentProps> = ({ debts, announcements, loading, userRoles }) => {
   const navigate = useNavigate();
 
   const navigationCards: NavigationCard[] = [
@@ -19,21 +34,24 @@ const InicioContent: React.FC<{ debts: any[]; announcements: string[]; loading: 
       description: 'Administrar expensas regulares del condominio',
       icon: <svg width="32" height="32" fill="rgb(244,228,69)"><rect x="8" y="8" width="16" height="16" rx="3" /></svg>,
       path: '/expensas',
-      color: '#3498db'
+      color: '#3498db',
+      module: 'expensas'
     },
     {
       title: 'Pago de Expensas',
       description: 'Realizar pagos de expensas pendientes',
       icon: <svg width="32" height="32" fill="rgb(244,228,69)"><circle cx="16" cy="16" r="12" /><text x="16" y="22" textAnchor="middle" fontSize="14" fill="rgb(68,68,68)">$</text></svg>,
       path: '/pagos',
-      color: '#27ae60'
+      color: '#27ae60',
+      module: 'pagos'
     },
     {
       title: 'Categorías de Expensas',
       description: 'Gestionar categorías de expensas',
       icon: <svg width="32" height="32" fill="rgb(244,228,69)"><rect x="6" y="6" width="20" height="20" rx="3" /><line x1="12" y1="12" x2="20" y2="12" stroke="rgb(68,68,68)" strokeWidth="2" /><line x1="12" y1="18" x2="20" y2="18" stroke="rgb(68,68,68)" strokeWidth="2" /></svg>,
       path: '/categorias-expensas',
-      color: '#2980b9'
+      color: '#2980b9',
+      module: 'categorias-expensas'
     },
     
     // Sección de Servicios
@@ -42,21 +60,24 @@ const InicioContent: React.FC<{ debts: any[]; announcements: string[]; loading: 
       description: 'Administrar expensas relacionadas con servicios',
       icon: <svg width="32" height="32" fill="rgb(244,228,69)"><rect x="4" y="6" width="24" height="20" rx="3" /><line x1="8" y1="12" x2="22" y2="12" stroke="rgb(68,68,68)" strokeWidth="2" /><line x1="8" y1="18" x2="18" y2="18" stroke="rgb(68,68,68)" strokeWidth="2" /><circle cx="20" cy="10" r="3" /></svg>,
       path: '/expensas-servicio',
-      color: '#e67e22'
+      color: '#e67e22',
+      module: 'expensas-servicio'
     },
     {
       title: 'Pagos de Servicios',
       description: 'Gestionar pagos de servicios',
       icon: <svg width="32" height="32" fill="rgb(244,228,69)"><rect x="4" y="6" width="24" height="20" rx="3" /><circle cx="8" cy="14" r="2" /><circle cx="16" cy="14" r="2" /><circle cx="24" cy="14" r="2" /><path d="M8 20h16v3H8z" /></svg>,
       path: '/pagos-servicio',
-      color: '#f39c12'
+      color: '#f39c12',
+      module: 'pagos-servicio'
     },
     {
       title: 'Tipos de Servicio',
       description: 'Configurar tipos de servicios disponibles',
       icon: <svg width="32" height="32" fill="rgb(244,228,69)"><rect x="4" y="4" width="24" height="24" rx="3" /><circle cx="12" cy="12" r="3" /><circle cx="20" cy="12" r="3" /><circle cx="12" cy="20" r="3" /><circle cx="20" cy="20" r="3" /></svg>,
       path: '/tipos-servicio',
-      color: '#d35400'
+      color: '#d35400',
+      module: 'tipos-servicio'
     },
     
     // Sección de Propiedades
@@ -65,14 +86,16 @@ const InicioContent: React.FC<{ debts: any[]; announcements: string[]; loading: 
       description: 'Administrar propiedades del condominio',
       icon: <svg width="32" height="32" fill="rgb(244,228,69)"><rect x="6" y="12" width="20" height="14" rx="3" /><rect x="12" y="6" width="8" height="8" rx="2" /></svg>,
       path: '/propiedades',
-      color: '#9b59b6'
+      color: '#9b59b6',
+      module: 'propiedades'
     },
     {
       title: 'Tipo de Propiedad',
       description: 'Configurar tipos de propiedades',
       icon: <svg width="32" height="32" fill="rgb(244,228,69)"><rect x="4" y="8" width="24" height="16" rx="3" /><rect x="10" y="4" width="12" height="8" rx="2" /><circle cx="12" cy="14" r="2" /><circle cx="20" cy="14" r="2" /></svg>,
       path: '/tipo-propiedades',
-      color: '#8e44ad'
+      color: '#8e44ad',
+      module: 'tipo-propiedades'
     },
     
     // Sección de Usuarios
@@ -81,21 +104,24 @@ const InicioContent: React.FC<{ debts: any[]; announcements: string[]; loading: 
       description: 'Administrar usuarios del sistema',
       icon: <svg width="32" height="32" fill="rgb(244,228,69)"><circle cx="12" cy="14" r="5" /><circle cx="20" cy="14" r="5" /><rect x="6" y="22" width="20" height="5" rx="2.5" /></svg>,
       path: '/usuarios',
-      color: '#e74c3c'
+      color: '#e74c3c',
+      module: 'usuarios'
     },
     {
       title: 'Gestión de Propietarios',
       description: 'Administrar relación propietarios-propiedades',
       icon: <svg width="32" height="32" fill="rgb(244,228,69)"><rect x="4" y="8" width="24" height="16" rx="3" /><circle cx="10" cy="14" r="2" /><circle cx="22" cy="14" r="2" /><path d="M16 19h6v3h-6z" /><path d="M8 19h4v3H8z" /></svg>,
       path: '/duenos-propiedades',
-      color: '#c0392b'
+      color: '#c0392b',
+      module: 'duenos-propiedades'
     },
     {
       title: 'Roles',
       description: 'Configurar roles y permisos',
       icon: <svg width="32" height="32" fill="rgb(244,228,69)"><rect x="4" y="10" width="24" height="14" rx="2" /><circle cx="10" cy="8" r="3" /><circle cx="22" cy="8" r="3" /></svg>,
       path: '/roles',
-      color: '#34495e'
+      color: '#34495e',
+      module: 'roles'
     },
     
     // Reportes
@@ -104,9 +130,13 @@ const InicioContent: React.FC<{ debts: any[]; announcements: string[]; loading: 
       description: 'Generar reportes y estadísticas',
       icon: <svg width="32" height="32" fill="rgb(244,228,69)"><path d="M6 26h20M10 18h10M16 10h0" stroke="rgb(244,228,69)" strokeWidth="3"/></svg>,
       path: '/reportes',
-      color: '#16a085'
+      color: '#16a085',
+      module: 'reportes'
     }
   ];
+
+  // Filter cards based on user role
+  const visibleCards = navigationCards.filter(card => canViewModule(userRoles, card.module));
 
   const handleCardClick = (path: string) => {
     navigate(path);
@@ -199,7 +229,7 @@ const InicioContent: React.FC<{ debts: any[]; announcements: string[]; loading: 
           gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
           gap: '20px' 
         }}>
-          {navigationCards.map((card, index) => (
+          {visibleCards.map((card, index) => (
             <div
               key={index}
               onClick={() => handleCardClick(card.path)}

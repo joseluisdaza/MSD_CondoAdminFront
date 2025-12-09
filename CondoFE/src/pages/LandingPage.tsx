@@ -13,6 +13,7 @@ import ExpenseCategoriesContent from '../components/ExpenseCategoriesContent';
 import PropertyOwnersContent from '../components/PropertyOwnersContent';
 import ServiceTypesContent from '../components/ServiceTypesContent';
 import ServiceExpensesContent from '../components/ServiceExpensesContent';
+import ServicePaymentsContent from '../components/ServicePaymentsContent';
 import RolesContent from '../components/RolesContent';
 
 interface Debt {
@@ -236,6 +237,18 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
           </li>
           <li>
             <Link
+              to="/pagos-servicio"
+              className={`sidebar-link${location.pathname === '/pagos-servicio' ? ' active' : ''}`}
+              style={{ color: 'rgb(244,228,69)' }}
+            >
+              <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
+                <svg width="18" height="18" fill="rgb(244,228,69)"><rect x="2" y="3" width="14" height="12" rx="2" /><circle cx="5" cy="8" r="1.5" /><circle cx="9" cy="8" r="1.5" /><circle cx="13" cy="8" r="1.5" /><path d="M5 11h8v2H5z" /></svg>
+              </span>
+              Pagos de Servicio
+            </Link>
+          </li>
+          <li>
+            <Link
               to="/roles"
               className={`sidebar-link${location.pathname === '/roles' ? ' active' : ''}`}
               style={{ color: 'rgb(244,228,69)' }}
@@ -277,6 +290,7 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
           { path: '/duenos-propiedades', element: <PropertyOwnersContent token={token} /> },
           { path: '/tipos-servicio', element: <ServiceTypesContent token={token} /> },
           { path: '/expensas-servicio', element: <ServiceExpensesContent token={token} /> },
+          { path: '/pagos-servicio', element: <ServicePaymentsContent token={token} /> },
           { path: '/roles', element: <RolesContent token={token} /> },
         ])}
       </main>

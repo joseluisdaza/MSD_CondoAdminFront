@@ -13,6 +13,8 @@ export const ENDPOINTS = {
   expenseCategories: `${API_BASE_URL}/ExpenseCategories`,
   expenses: `${API_BASE_URL}/Expenses`,
   paymentStatus: `${API_BASE_URL}/PaymentStatus`,
+  userProperties: `${API_BASE_URL}/Property/ByUser`,
+  expensePayments: `${API_BASE_URL}/ExpensePayments`,
 
   // Add other endpoints here
 };

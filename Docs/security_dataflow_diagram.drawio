@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-02-14T00:00:00.000Z" agent="5.0 (Windows NT 10.0; Win64; x64)" version="20.8.16" etag="ghi789" type="device">
+  <diagram name="Security &amp; Data Flow Diagram" id="security-data-flow">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="Condo Admin Frontend - Security &amp; Data Flow Architecture" style="rounded=0;whiteSpace=wrap;html=1;fontSize=18;fontStyle=1;fillColor=#000000;strokeColor=#000000;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1560" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Security Layer -->
+        <mxCell id="security-layer" value="Security Layer" style="rounded=0;whiteSpace=wrap;html=1;fontSize=16;fontStyle=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="1560" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- JWT Authentication -->
+        <mxCell id="jwt-auth" value="JWT Authentication&#xa;&#xa;• Token-based Authentication&#xa;• JWT Token Parsing&#xa;• Role Extraction&#xa;• Authorization Claims&#xa;• Secure Token Storage&#xa;&#xa;Security Features:&#xa;- Bearer Token in Headers&#xa;- Role-based Access Control&#xa;- Token Expiration Handling&#xa;- Automatic Logout" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="80" y="140" width="200" height="180" as="geometry" />
+        </mxCell>
+        
+        <!-- Role-Based Access Control -->
+        <mxCell id="rbac" value="Role-Based Access Control&#xa;&#xa;Roles Hierarchy:&#xa;• admin - Full system access&#xa;• super - Administrative access&#xa;• director - Management access&#xa;• habitante - Resident access&#xa;• auxiliar - Assistant access&#xa;• seguridad - Security access&#xa;&#xa;Permission Matrix:&#xa;- Module-level permissions&#xa;- Component-level restrictions&#xa;- Route-level guards&#xa;- UI element visibility" style="rounded=1;whiteSpace=wrap;html=1;fontSize=10;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="320" y="140" width="220" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- Input Validation & Sanitization -->
+        <mxCell id="input-validation" value="Input Validation &amp; Sanitization&#xa;&#xa;Client-Side Validation:&#xa;• Form field validation&#xa;• Data type checking&#xa;• Format verification&#xa;• Required field validation&#xa;&#xa;Security Measures:&#xa;• XSS Prevention&#xa;• Input sanitization&#xa;• HTML entity encoding&#xa;• SQL injection prevention&#xa;• CSRF protection&#xa;&#xa;Validation Rules:&#xa;- Email format validation&#xa;- Password strength&#xa;- Numeric range validation&#xa;- String length limits" style="rounded=1;whiteSpace=wrap;html=1;fontSize=10;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="580" y="140" width="200" height="240" as="geometry" />
+        </mxCell>
+        
+        <!-- API Security -->
+        <mxCell id="api-security" value="API Security&#xa;&#xa;HTTP Security:&#xa;• HTTPS only communication&#xa;• Bearer token authentication&#xa;• CORS configuration&#xa;• Request rate limiting&#xa;&#xa;Headers Security:&#xa;• Authorization: Bearer {token}&#xa;• Content-Type validation&#xa;• Accept header specification&#xa;&#xa;Error Handling:&#xa;• Secure error messages&#xa;• No sensitive data exposure&#xa;• Proper HTTP status codes&#xa;• Consistent error format" style="rounded=1;whiteSpace=wrap;html=1;fontSize=10;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="820" y="140" width="200" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- Data Flow Layer -->
+        <mxCell id="dataflow-layer" value="Data Flow Architecture" style="rounded=0;whiteSpace=wrap;html=1;fontSize=16;fontStyle=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="40" y="400" width="1560" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- User Authentication Flow -->
+        <mxCell id="auth-flow" value="Authentication Flow&#xa;&#xa;1. User Login Request&#xa;   ↓&#xa;2. Credentials Validation&#xa;   ↓&#xa;3. JWT Token Generation&#xa;   ↓&#xa;4. Token Storage (Secure)&#xa;   ↓&#xa;5. Role & Permission Loading&#xa;   ↓&#xa;6. Dashboard Access" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="80" y="460" width="180" height="160" as="geometry" />
+        </mxCell>
+        
+        <!-- Component Data Flow -->
+        <mxCell id="component-flow" value="Component Data Flow&#xa;&#xa;1. Component Mount&#xa;   ↓&#xa;2. Token Validation&#xa;   ↓&#xa;3. Role Permission Check&#xa;   ↓&#xa;4. API Endpoint Selection&#xa;   ↓&#xa;5. Authenticated Request&#xa;   ↓&#xa;6. Data Validation&#xa;   ↓&#xa;7. State Management&#xa;   ↓&#xa;8. UI Rendering" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="280" y="460" width="180" height="180" as="geometry" />
+        </mxCell>
+        
+        <!-- CRUD Operations Flow -->
+        <mxCell id="crud-flow" value="CRUD Operations Flow&#xa;&#xa;CREATE:&#xa;1. Form Validation&#xa;2. Data Sanitization&#xa;3. POST Request&#xa;4. Success/Error Handling&#xa;&#xa;READ:&#xa;1. Component Mount&#xa;2. GET Request&#xa;3. Data Processing&#xa;4. State Update&#xa;&#xa;UPDATE:&#xa;1. Data Validation&#xa;2. PUT Request&#xa;3. Optimistic Updates&#xa;4. Error Rollback&#xa;&#xa;DELETE:&#xa;1. Confirmation Dialog&#xa;2. DELETE Request&#xa;3. State Cleanup" style="rounded=1;whiteSpace=wrap;html=1;fontSize=10;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="480" y="460" width="180" height="240" as="geometry" />
+        </mxCell>
+        
+        <!-- State Management Flow -->
+        <mxCell id="state-flow" value="State Management&#xa;&#xa;Local State (useState):&#xa;• Form data&#xa;• Loading states&#xa;• Error messages&#xa;• UI states (editing, creating)&#xa;&#xa;Shared State:&#xa;• User authentication&#xa;• User roles&#xa;• Global configurations&#xa;&#xa;Data Persistence:&#xa;• JWT token storage&#xa;• User preferences&#xa;• Session management&#xa;&#xa;State Updates:&#xa;• Optimistic updates&#xa;• Error state handling&#xa;• Loading state management" style="rounded=1;whiteSpace=wrap;html=1;fontSize=10;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="680" y="460" width="180" height="220" as="geometry" />
+        </mxCell>
+        
+        <!-- Error Handling Flow -->
+        <mxCell id="error-flow" value="Error Handling &amp; Recovery&#xa;&#xa;Network Errors:&#xa;• Connection timeout&#xa;• Server unavailable&#xa;• API endpoint errors&#xa;&#xa;Authentication Errors:&#xa;• Token expiration&#xa;• Invalid credentials&#xa;• Permission denied&#xa;&#xa;Validation Errors:&#xa;• Form validation&#xa;• Data format errors&#xa;• Business rule violations&#xa;&#xa;Recovery Strategies:&#xa;• Automatic retry&#xa;• Fallback mechanisms&#xa;• User notification&#xa;• Graceful degradation" style="rounded=1;whiteSpace=wrap;html=1;fontSize=10;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="880" y="460" width="180" height="240" as="geometry" />
+        </mxCell>
+        
+        <!-- Security Architecture Layer -->
+        <mxCell id="security-arch-layer" value="Security Architecture Implementation" style="rounded=0;whiteSpace=wrap;html=1;fontSize=16;fontStyle=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="40" y="740" width="1560" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Frontend Security Measures -->
+        <mxCell id="frontend-security" value="Frontend Security Measures&#xa;&#xa;Authentication Security:&#xa;• Secure token storage&#xa;• Automatic token refresh&#xa;• Session timeout handling&#xa;• Logout on inactivity&#xa;&#xa;Route Protection:&#xa;• Private route guards&#xa;• Role-based routing&#xa;• Unauthorized redirects&#xa;• Deep link protection&#xa;&#xa;Component Security:&#xa;• Conditional rendering&#xa;• Permission-based visibility&#xa;• Secure form handling&#xa;• Data sanitization" style="rounded=1;whiteSpace=wrap;html=1;fontSize=10;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="80" y="800" width="200" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- Permission System -->
+        <mxCell id="permission-system" value="Permission Management System&#xa;&#xa;Module Permissions:&#xa;• inicio: Dashboard access&#xa;• expensas: Expense management&#xa;• pagos: Payment processing&#xa;• propiedades: Property management&#xa;• usuarios: User administration&#xa;• reportes: Report generation&#xa;&#xa;Role-Permission Mapping:&#xa;admin: All modules&#xa;super: All modules&#xa;director: Limited admin access&#xa;habitante: Basic resident access&#xa;auxiliar: Assistant operations&#xa;seguridad: Security only&#xa;&#xa;Dynamic Permissions:&#xa;• Runtime permission checking&#xa;• Component-level restrictions&#xa;• API endpoint authorization" style="rounded=1;whiteSpace=wrap;html=1;fontSize=9;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="300" y="800" width="220" height="220" as="geometry" />
+        </mxCell>
+        
+        <!-- Data Protection -->
+        <mxCell id="data-protection" value="Data Protection Strategies&#xa;&#xa;Sensitive Data Handling:&#xa;• Personal information masking&#xa;• Financial data encryption&#xa;• Secure data transmission&#xa;• Minimal data exposure&#xa;&#xa;Client-Side Protection:&#xa;• Input validation&#xa;• Output encoding&#xa;• XSS prevention&#xa;• CSRF tokens&#xa;&#xa;Data Integrity:&#xa;• Form validation&#xa;• Data consistency checks&#xa;• Error boundary protection&#xa;• Secure state management&#xa;&#xa;Privacy Measures:&#xa;• Data minimization&#xa;• Secure storage&#xa;• Session management&#xa;• Audit logging" style="rounded=1;whiteSpace=wrap;html=1;fontSize=10;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="540" y="800" width="200" height="220" as="geometry" />
+        </mxCell>
+        
+        <!-- Communication Security -->
+        <mxCell id="comm-security" value="Secure Communication&#xa;&#xa;HTTP Security:&#xa;• HTTPS enforcement&#xa;• TLS 1.3 encryption&#xa;• Certificate validation&#xa;• Secure headers&#xa;&#xa;API Communication:&#xa;• Bearer token authentication&#xa;• Request signing&#xa;• Response validation&#xa;• Error handling&#xa;&#xa;Headers Configuration:&#xa;• Authorization: Bearer {jwt}&#xa;• Content-Type: application/json&#xa;• Accept: application/json&#xa;• Cache-Control settings&#xa;&#xa;Request Security:&#xa;• Input sanitization&#xa;• Parameter validation&#xa;• Rate limiting compliance&#xa;• Timeout configuration" style="rounded=1;whiteSpace=wrap;html=1;fontSize=10;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="760" y="800" width="200" height="240" as="geometry" />
+        </mxCell>
+        
+        <!-- Security Best Practices -->
+        <mxCell id="security-practices" value="Security Best Practices&#xa;&#xa;Development Security:&#xa;• Secure coding practices&#xa;• Regular security audits&#xa;• Dependency vulnerability checks&#xa;• Code review processes&#xa;&#xa;Runtime Security:&#xa;• Error boundary implementation&#xa;• Graceful error handling&#xa;• Security monitoring&#xa;• Performance monitoring&#xa;&#xa;User Security:&#xa;• Strong password policies&#xa;• Account lockout mechanisms&#xa;• Session security&#xa;• User education&#xa;&#xa;Compliance:&#xa;• OWASP guidelines&#xa;• Industry standards&#xa;• Privacy regulations&#xa;• Security frameworks" style="rounded=1;whiteSpace=wrap;html=1;fontSize=10;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="980" y="800" width="200" height="240" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrows and Connections -->
+        <!-- JWT to RBAC -->
+        <mxCell id="jwt-to-rbac" value="provides roles" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="jwt-auth" target="rbac">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="290" y="250" as="sourcePoint" />
+            <mxPoint x="340" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- RBAC to Input Validation -->
+        <mxCell id="rbac-to-validation" value="enforces access" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="rbac" target="input-validation">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="550" y="250" as="sourcePoint" />
+            <mxPoint x="600" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Input Validation to API Security -->
+        <mxCell id="validation-to-api" value="secures requests" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="input-validation" target="api-security">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="790" y="250" as="sourcePoint" />
+            <mxPoint x="840" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Auth Flow to Component Flow -->
+        <mxCell id="auth-to-component" value="enables access" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="auth-flow" target="component-flow">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="270" y="550" as="sourcePoint" />
+            <mxPoint x="320" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Component Flow to CRUD Flow -->
+        <mxCell id="component-to-crud" value="triggers operations" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="component-flow" target="crud-flow">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="470" y="550" as="sourcePoint" />
+            <mxPoint x="520" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- CRUD Flow to State Management -->
+        <mxCell id="crud-to-state" value="updates state" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="crud-flow" target="state-flow">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="670" y="580" as="sourcePoint" />
+            <mxPoint x="720" y="530" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- State to Error Handling -->
+        <mxCell id="state-to-error" value="handles errors" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="state-flow" target="error-flow">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="870" y="580" as="sourcePoint" />
+            <mxPoint x="920" y="530" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Security Layer to Implementation -->
+        <mxCell id="security-to-impl" value="implements" style="endArrow=classic;html=1;rounded=0;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#b85450;" edge="1" parent="1" source="jwt-auth" target="frontend-security">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="130" y="330" as="sourcePoint" />
+            <mxPoint x="180" y="800" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- RBAC to Permission System -->
+        <mxCell id="rbac-to-perm" value="implements" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#d6b656;" edge="1" parent="1" source="rbac" target="permission-system">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="430" y="350" as="sourcePoint" />
+            <mxPoint x="410" y="800" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

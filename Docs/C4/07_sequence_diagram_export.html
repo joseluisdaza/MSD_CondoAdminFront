@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagrama de Secuencia - Autenticación y Acceso</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: #333;
+      text-align: center;
+      margin-bottom: 30px;
+      border-bottom: 3px solid #1168bd;
+      padding-bottom: 10px;
+    }
+
+    #diagram {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .export-buttons {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .export-btn {
+      background: #1168bd;
+      color: white;
+      padding: 10px 20px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .export-btn:hover {
+      background: #0d47a1;
+    }
+
+    .instructions {
+      background: #e3f2fd;
+      border-left: 4px solid #2196f3;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>🔄 Diagrama de Secuencia - Autenticación y Acceso</h1>
+
+    <div class="instructions">
+      <h3>🖼️ Instrucciones para Exportar a JPG:</h3>
+      <ol>
+        <li><strong>Método 1:</strong> Haz clic derecho en el diagrama → "Guardar imagen como" → Selecciona JPG</li>
+        <li><strong>Método 2:</strong> Usa la herramienta de captura de pantalla de Windows (Win + Shift + S)</li>
+        <li><strong>Método 3:</strong> Usa los botones de exportación abajo (requiere implementación adicional)</li>
+        <li><strong>Método 4:</strong> Abre las herramientas de desarrollo (F12) → Console → Ejecuta código de
+          exportación</li>
+      </ol>
+    </div>
+
+    <div id="diagram">
+      <div class="mermaid">
+        sequenceDiagram
+        participant U as Usuario
+        participant FE as Frontend React
+        participant API as Backend API
+        participant JWT as JWT Service
+        participant Auth as Authorization Service
+        participant DB as Base de Datos
+
+        Note over U,DB: Proceso de Autenticación y Acceso a Módulos
+
+        %% Proceso de Login
+        U->>+FE: Ingresa credenciales
+        FE->>+API: POST /Auth/Login {username, password}
+        API->>+Auth: ValidateCredentials(username, password)
+        Auth->>+DB: SELECT user WHERE username=? AND passwordHash=?
+        DB-->>-Auth: User data + roles
+        Auth-->>-API: User validated with roles
+
+        alt Credenciales válidas
+        API->>+JWT: GenerateToken(user, roles)
+        JWT-->>-API: JWT Token
+        API-->>FE: {token, userInfo, roles}
+        FE->>FE: Store token & user data
+        FE-->>-U: Muestra dashboard personalizado
+
+        Note over U,DB: Acceso a Módulo Específico (Ejemplo: Gestión de Expensas)
+
+        U->>+FE: Navega a /expensas
+        FE->>FE: Check role permissions for 'expensas'
+
+        alt Usuario tiene permisos
+        FE->>+API: GET /Expenses (Authorization: Bearer token)
+        API->>+Auth: ValidateJWTToken(token)
+        Auth->>+JWT: DecodeToken(token)
+        JWT-->>-Auth: User claims & roles
+        Auth-->>-API: Token validated + user permissions
+
+        API->>API: Check user role can access expenses
+        API->>+DB: SELECT expenses WHERE user has access
+        DB-->>-API: Expenses data
+        API-->>-FE: {expenses: [...]}
+        FE-->>U: Muestra lista de expensas
+
+        else Usuario sin permisos
+        FE-->>U: Muestra "Acceso denegado"
+        end
+
+        Note over U,DB: Operación CRUD (Ejemplo: Crear Expensa)
+
+        U->>+FE: Crear nueva expensa
+        FE->>FE: Valida formulario
+        FE->>+API: POST /Expenses {expenseData} (Authorization: Bearer token)
+        API->>+Auth: ValidateTokenAndPermissions(token, 'create_expense')
+        Auth-->>-API: Authorized
+
+        API->>+DB: INSERT INTO expenses (...)
+        DB-->>-API: Expense created {id: 123}
+        API-->>-FE: {success: true, expenseId: 123}
+        FE->>FE: Actualiza lista local
+        FE-->>-U: Confirma creación exitosa
+
+        else Credenciales inválidas
+        API-->>FE: {error: "Invalid credentials"}
+        FE-->>-U: Muestra error de login
+        end
+
+        Note over U,DB: Manejo de Sesión Expirada
+
+        U->>+FE: Realiza operación
+        FE->>+API: GET /SomeEndpoint (Authorization: Bearer expired_token)
+        API->>+Auth: ValidateJWTToken(expired_token)
+        Auth-->>-API: Token expired
+
+        API-->>FE: 401 Unauthorized
+        FE->>FE: Clear stored token
+        FE-->>-U: Redirige a login
+      </div>
+    </div>
+
+    <div class="export-buttons">
+      <button class="export-btn" onclick="exportToPNG()">📸 Exportar a PNG</button>
+      <button class="export-btn" onclick="exportToSVG()">🖼️ Exportar a SVG</button>
+      <button class="export-btn" onclick="copyToClipboard()">📋 Copiar al Portapapeles</button>
+    </div>
+
+    <div class="instructions">
+      <h3>🛠️ Opciones Alternativas:</h3>
+      <ul>
+        <li><strong>Mermaid Live Editor:</strong> <a href="https://mermaid.live"
+            target="_blank">https://mermaid.live</a> - Pega el código y exporta directamente</li>
+        <li><strong>VS Code:</strong> Instala la extensión "Mermaid Markdown Syntax Highlighting" que permite exportar
+        </li>
+        <li><strong>CLI:</strong> Instala mermaid-cli: <code>npm install -g @mermaid-js/mermaid-cli</code></li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // Configuración de Mermaid
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      securityLevel: 'loose',
+      sequence: {
+        width: 150,
+        height: 65,
+        boxMargin: 10,
+        boxTextMargin: 5,
+        noteMargin: 10,
+        messageMargin: 35,
+        mirrorActors: true,
+        rightAngles: false,
+        bottomMarginAdj: 1,
+        useMaxWidth: true,
+        wrap: true
+      }
+    });
+
+    // Funciones de exportación
+    function exportToPNG() {
+      alert('Para exportar a PNG/JPG:\n\n1. Haz clic derecho en el diagrama\n2. Selecciona "Guardar imagen como"\n3. Elige el formato JPG o PNG\n\nO usa herramientas de captura de pantalla (Win + Shift + S)');
+    }
+
+    function exportToSVG() {
+      const svg = document.querySelector('.mermaid svg');
+      if (svg) {
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+        const svgUrl = URL.createObjectURL(svgBlob);
+
+        const downloadLink = document.createElement('a');
+        downloadLink.href = svgUrl;
+        downloadLink.download = 'diagrama_secuencia.svg';
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      }
+    }
+
+    function copyToClipboard() {
+      const svg = document.querySelector('.mermaid svg');
+      if (svg) {
+        const svgData = new XMLSerializer().serializeToString(svg);
+        navigator.clipboard.writeText(svgData).then(() => {
+          alert('SVG copiado al portapapeles');
+        });
+      }
+    }
+
+    // Esperar a que Mermaid termine de renderizar
+    setTimeout(() => {
+      console.log('Diagrama renderizado. Para exportar a imagen:');
+      console.log('1. Haz clic derecho en el diagrama');
+      console.log('2. Selecciona "Guardar imagen como"');
+      console.log('3. Elige formato JPG');
+    }, 2000);
+  </script>
+</body>
+
+</html>

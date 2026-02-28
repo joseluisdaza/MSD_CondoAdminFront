@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-02-14T00:00:00.000Z" agent="5.0 (Windows NT 10.0; Win64; x64)" version="20.8.16" etag="def456" type="device">
+  <diagram name="Component Class Diagram" id="component-class-diagram">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="Condo Admin Frontend - Component Class Diagram" style="rounded=0;whiteSpace=wrap;html=1;fontSize=18;fontStyle=1;fillColor=#000000;strokeColor=#000000;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1560" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Main App Class -->
+        <mxCell id="app-class" value="&lt;b&gt;App&lt;/b&gt;&#xa;&#xa;- token: string | null&#xa;- setToken: (token: string) =&gt; void&#xa;&#xa;+ render(): JSX.Element&#xa;+ handleAuthentication(): void" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;fillColor=#d5e8d4;strokeColor=#82b366;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="80" y="100" width="200" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- Authentication Classes -->
+        <mxCell id="login-class" value="&lt;b&gt;LoginPage&lt;/b&gt;&#xa;&#xa;- login: string&#xa;- password: string&#xa;- error: string&#xa;- loading: boolean&#xa;- lang: SupportedLang&#xa;- onLogin: (token: string) =&gt; void&#xa;&#xa;+ handleSubmit(e: FormEvent): void&#xa;+ getMessage(label: LoginKey): string&#xa;+ render(): JSX.Element" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="320" y="80" width="220" height="140" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="landing-class" value="&lt;b&gt;LandingPage&lt;/b&gt;&#xa;&#xa;- token: string&#xa;- userRoles: UserRole[]&#xa;- debts: Debt[]&#xa;- sidebarOpen: boolean&#xa;- announcements: string[]&#xa;- loading: boolean&#xa;&#xa;+ toggleSidebar(): void&#xa;+ fetchDebts(): void&#xa;+ canViewModule(module: string): boolean&#xa;+ render(): JSX.Element" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="580" y="80" width="220" height="140" as="geometry" />
+        </mxCell>
+        
+        <!-- Hook Classes -->
+        <mxCell id="userrole-hook-class" value="&lt;b&gt;useUserRole Hook&lt;/b&gt;&#xa;&#xa;- userRoles: UserRole[]&#xa;- userInfo: UserInfo | null&#xa;- loading: boolean&#xa;- error: string | null&#xa;&#xa;+ hasRole(role: UserRole): boolean&#xa;+ hasAnyRole(roles: UserRole[]): boolean&#xa;+ mapRoleToEnum(roleName: string): UserRole&#xa;+ canViewModule(userRoles, module): boolean" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="840" y="80" width="250" height="140" as="geometry" />
+        </mxCell>
+        
+        <!-- API Service Class -->
+        <mxCell id="endpoints-class" value="&lt;b&gt;ENDPOINTS&lt;/b&gt;&#xa;&#xa;+ API_BASE_URL: string&#xa;+ health: string&#xa;+ authHealth: string&#xa;+ login: string&#xa;+ currentUser: string&#xa;+ property: string&#xa;+ propertyType: string&#xa;+ users: string&#xa;+ role: string&#xa;+ expenseCategories: string&#xa;+ expenses: string&#xa;+ serviceTypes: string&#xa;+ serviceExpenses: string&#xa;+ servicePayments: string" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="80" width="200" height="220" as="geometry" />
+        </mxCell>
+        
+        <!-- Content Component Classes -->
+        <mxCell id="inicio-class" value="&lt;b&gt;InicioContent&lt;/b&gt;&#xa;&#xa;- debts: Debt[]&#xa;- announcements: string[]&#xa;- loading: boolean&#xa;- userRoles: UserRole[]&#xa;- navigationCards: NavigationCard[]&#xa;&#xa;+ canViewModule(roles, module): boolean&#xa;+ render(): JSX.Element" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;fillColor=#d5e8d4;strokeColor=#82b366;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="80" y="260" width="200" height="120" as="geometry" />
+        </mxCell>
+        
+        <!-- Property Management Classes -->
+        <mxCell id="propiedades-class" value="&lt;b&gt;PropiedadesContent&lt;/b&gt;&#xa;&#xa;- token: string&#xa;- properties: Property[]&#xa;- propertyTypes: PropertyType[]&#xa;- loading: boolean&#xa;- selectedProperty: Property | null&#xa;- isEditing: boolean&#xa;- isCreating: boolean&#xa;- formData: Omit&lt;Property, 'id' | 'startDate'&gt;&#xa;- message: {text: string; type: 'success' | 'error'} | null&#xa;&#xa;+ fetchProperties(): Promise&lt;void&gt;&#xa;+ fetchPropertyTypes(): Promise&lt;void&gt;&#xa;+ createProperty(): Promise&lt;void&gt;&#xa;+ updateProperty(): Promise&lt;void&gt;&#xa;+ deleteProperty(id: number): Promise&lt;void&gt;&#xa;+ handleEdit(property: Property): void&#xa;+ handleSubmit(e: FormEvent): void&#xa;+ handleCancel(): void&#xa;+ render(): JSX.Element" style="rounded=0;whiteSpace=wrap;html=1;fontSize=9;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="300" y="260" width="240" height="200" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="property-types-class" value="&lt;b&gt;PropertyTypesContent&lt;/b&gt;&#xa;&#xa;- token: string&#xa;- propertyTypes: PropertyType[]&#xa;- loading: boolean&#xa;- selectedPropertyType: PropertyType | null&#xa;- isEditing: boolean&#xa;- isCreating: boolean&#xa;- formData: Omit&lt;PropertyType, 'id' | 'startDate'&gt;&#xa;- message: {text: string; type: 'success' | 'error'} | null&#xa;&#xa;+ fetchPropertyTypes(): Promise&lt;void&gt;&#xa;+ createPropertyType(): Promise&lt;void&gt;&#xa;+ updatePropertyType(): Promise&lt;void&gt;&#xa;+ deletePropertyType(id: number): Promise&lt;void&gt;&#xa;+ handleEdit(propertyType: PropertyType): void&#xa;+ handleSubmit(e: FormEvent): void&#xa;+ handleCancel(): void&#xa;+ render(): JSX.Element" style="rounded=0;whiteSpace=wrap;html=1;fontSize=9;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="560" y="260" width="240" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- Expense Management Classes -->
+        <mxCell id="expensas-class" value="&lt;b&gt;ExpensasContent&lt;/b&gt;&#xa;&#xa;- token: string&#xa;- expenses: Expense[]&#xa;- properties: Property[]&#xa;- expenseCategories: ExpenseCategory[]&#xa;- paymentStatuses: PaymentStatus[]&#xa;- loading: boolean&#xa;- selectedExpense: Expense | null&#xa;- isEditing: boolean&#xa;- isCreating: boolean&#xa;- formData: ExpenseFormData&#xa;- message: MessageType | null&#xa;&#xa;+ fetchExpenses(): Promise&lt;void&gt;&#xa;+ fetchProperties(): Promise&lt;void&gt;&#xa;+ fetchExpenseCategories(): Promise&lt;void&gt;&#xa;+ fetchPaymentStatuses(): Promise&lt;void&gt;&#xa;+ createExpense(): Promise&lt;void&gt;&#xa;+ updateExpense(): Promise&lt;void&gt;&#xa;+ deleteExpense(id: number): Promise&lt;void&gt;&#xa;+ handleEdit(expense: Expense): void&#xa;+ handleSubmit(e: FormEvent): void&#xa;+ handleCancel(): void&#xa;+ render(): JSX.Element" style="rounded=0;whiteSpace=wrap;html=1;fontSize=8;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="820" y="260" width="220" height="240" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="pagos-class" value="&lt;b&gt;PagosContent&lt;/b&gt;&#xa;&#xa;- token: string&#xa;- expenses: Expense[]&#xa;- properties: Property[]&#xa;- loading: boolean&#xa;- selectedExpense: Expense | null&#xa;- paymentAmount: number&#xa;- message: MessageType | null&#xa;&#xa;+ fetchExpenses(): Promise&lt;void&gt;&#xa;+ fetchProperties(): Promise&lt;void&gt;&#xa;+ processPayment(expenseId: number): Promise&lt;void&gt;&#xa;+ handlePayment(expense: Expense): void&#xa;+ calculateTotal(expense: Expense): number&#xa;+ render(): JSX.Element" style="rounded=0;whiteSpace=wrap;html=1;fontSize=9;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="260" width="220" height="160" as="geometry" />
+        </mxCell>
+        
+        <!-- Service Management Classes -->
+        <mxCell id="service-types-class" value="&lt;b&gt;ServiceTypesContent&lt;/b&gt;&#xa;&#xa;- token: string&#xa;- serviceTypes: ServiceType[]&#xa;- loading: boolean&#xa;- selectedServiceType: ServiceType | null&#xa;- isEditing: boolean&#xa;- isCreating: boolean&#xa;- formData: Omit&lt;ServiceType, 'id' | 'totalServiceExpenses'&gt;&#xa;- message: {text: string; type: 'success' | 'error'} | null&#xa;&#xa;+ fetchServiceTypes(): Promise&lt;void&gt;&#xa;+ createServiceType(): Promise&lt;void&gt;&#xa;+ updateServiceType(): Promise&lt;void&gt;&#xa;+ deleteServiceType(id: number): Promise&lt;void&gt;&#xa;+ handleEdit(serviceType: ServiceType): void&#xa;+ handleSubmit(e: FormEvent): void&#xa;+ handleCancel(): void&#xa;+ render(): JSX.Element" style="rounded=0;whiteSpace=wrap;html=1;fontSize=9;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="80" y="520" width="240" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- User Management Classes -->
+        <mxCell id="usuarios-class" value="&lt;b&gt;UsuariosContent&lt;/b&gt;&#xa;&#xa;- token: string&#xa;- users: User[]&#xa;- loading: boolean&#xa;- selectedUser: User | null&#xa;- isEditing: boolean&#xa;- isCreating: boolean&#xa;- formData: UserFormData&#xa;- message: MessageType | null&#xa;&#xa;+ fetchUsers(): Promise&lt;void&gt;&#xa;+ createUser(): Promise&lt;void&gt;&#xa;+ updateUser(): Promise&lt;void&gt;&#xa;+ deleteUser(id: number): Promise&lt;void&gt;&#xa;+ handleEdit(user: User): void&#xa;+ handleSubmit(e: FormEvent): void&#xa;+ handleCancel(): void&#xa;+ render(): JSX.Element" style="rounded=0;whiteSpace=wrap;html=1;fontSize=9;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="340" y="520" width="220" height="180" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="roles-class" value="&lt;b&gt;RolesContent&lt;/b&gt;&#xa;&#xa;- token: string&#xa;- roles: Role[]&#xa;- users: User[]&#xa;- loading: boolean&#xa;- selectedRole: Role | null&#xa;- selectedUser: User | null&#xa;- message: MessageType | null&#xa;&#xa;+ fetchRoles(): Promise&lt;void&gt;&#xa;+ fetchUsers(): Promise&lt;void&gt;&#xa;+ assignRole(userId: number, roleId: number): Promise&lt;void&gt;&#xa;+ removeRole(userId: number, roleId: number): Promise&lt;void&gt;&#xa;+ render(): JSX.Element" style="rounded=0;whiteSpace=wrap;html=1;fontSize=9;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="580" y="520" width="220" height="160" as="geometry" />
+        </mxCell>
+        
+        <!-- Interface/Type Definitions -->
+        <mxCell id="interfaces-title" value="Data Interfaces &amp; Types" style="rounded=0;whiteSpace=wrap;html=1;fontSize=14;fontStyle=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="80" y="750" width="1200" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Core Interfaces -->
+        <mxCell id="property-interface" value="&lt;b&gt;Property Interface&lt;/b&gt;&#xa;&#xa;+ id: number&#xa;+ legalId: string&#xa;+ tower: string&#xa;+ floor: number&#xa;+ code: string&#xa;+ propertyType: number&#xa;+ startDate: string&#xa;+ endDate?: string" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="80" y="800" width="150" height="120" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="propertytype-interface" value="&lt;b&gt;PropertyType Interface&lt;/b&gt;&#xa;&#xa;+ id: number&#xa;+ type: string&#xa;+ description: string&#xa;+ rooms: number&#xa;+ bathrooms: number&#xa;+ waterService: boolean&#xa;+ startDate: string" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="250" y="800" width="150" height="120" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="expense-interface" value="&lt;b&gt;Expense Interface&lt;/b&gt;&#xa;&#xa;+ id: number&#xa;+ categoryId: number&#xa;+ propertyId: number&#xa;+ startDate: string&#xa;+ paymentLimitDate: string&#xa;+ amount: number&#xa;+ interestAmount: number&#xa;+ interestRate: number&#xa;+ description: string&#xa;+ statusId: number&#xa;+ categoryName: string&#xa;+ propertyCode: string&#xa;+ propertyTower: string&#xa;+ statusDescription: string" style="rounded=0;whiteSpace=wrap;html=1;fontSize=9;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="420" y="800" width="150" height="160" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="servicetype-interface" value="&lt;b&gt;ServiceType Interface&lt;/b&gt;&#xa;&#xa;+ id: number&#xa;+ serviceName: string&#xa;+ description: string&#xa;+ totalServiceExpenses: number" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="590" y="800" width="150" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="user-interface" value="&lt;b&gt;User Interface&lt;/b&gt;&#xa;&#xa;+ id: number&#xa;+ userName: string&#xa;+ lastName: string&#xa;+ legalId: string&#xa;+ login: string" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="760" y="800" width="150" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="userrole-type" value="&lt;b&gt;UserRole Type&lt;/b&gt;&#xa;&#xa;type UserRole = &#xa;  'admin' | 'super' | 'director' |&#xa;  'habitante' | 'auxiliar' | 'seguridad'" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="930" y="800" width="180" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="navigation-interface" value="&lt;b&gt;NavigationCard Interface&lt;/b&gt;&#xa;&#xa;+ title: string&#xa;+ description: string&#xa;+ icon: React.ReactElement&#xa;+ path: string&#xa;+ color: string&#xa;+ module: string" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="800" width="150" height="120" as="geometry" />
+        </mxCell>
+        
+        <!-- Relationships -->
+        <!-- App to Pages -->
+        <mxCell id="app-to-login-rel" value="uses" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="app-class" target="login-class">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="290" y="150" as="sourcePoint" />
+            <mxPoint x="340" y="100" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="app-to-landing-rel" value="uses" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="login-class" target="landing-class">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="550" y="150" as="sourcePoint" />
+            <mxPoint x="600" y="100" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Landing to Hook -->
+        <mxCell id="landing-to-hook-rel" value="uses" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="landing-class" target="userrole-hook-class">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="810" y="150" as="sourcePoint" />
+            <mxPoint x="860" y="100" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Landing to Components -->
+        <mxCell id="landing-to-inicio-rel" value="routes to" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="landing-class" target="inicio-class">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="580" y="230" as="sourcePoint" />
+            <mxPoint x="180" y="260" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="landing-to-propiedades-rel" value="routes to" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="landing-class" target="propiedades-class">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="690" y="230" as="sourcePoint" />
+            <mxPoint x="420" y="260" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Components to Interfaces -->
+        <mxCell id="propiedades-to-interface-rel" value="implements" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;" edge="1" parent="1" source="propiedades-class" target="property-interface">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="420" y="470" as="sourcePoint" />
+            <mxPoint x="155" y="800" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="property-types-to-interface-rel" value="implements" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;" edge="1" parent="1" source="property-types-class" target="propertytype-interface">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="680" y="470" as="sourcePoint" />
+            <mxPoint x="325" y="800" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="expensas-to-interface-rel" value="implements" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;" edge="1" parent="1" source="expensas-class" target="expense-interface">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="930" y="510" as="sourcePoint" />
+            <mxPoint x="495" y="800" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Components use ENDPOINTS -->
+        <mxCell id="components-to-endpoints-rel" value="uses API" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;strokeColor=#6c8ebf;" edge="1" parent="1" source="propiedades-class" target="endpoints-class">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="550" y="360" as="sourcePoint" />
+            <mxPoint x="1130" y="300" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Hook to Components relationship -->
+        <mxCell id="hook-to-inicio-rel" value="provides roles" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0;entryDx=0;entryDy=0;strokeColor=#b85450;" edge="1" parent="1" source="userrole-hook-class" target="inicio-class">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="840" y="230" as="sourcePoint" />
+            <mxPoint x="280" y="260" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

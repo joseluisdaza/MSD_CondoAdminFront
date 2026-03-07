@@ -126,28 +126,33 @@ export const canViewModule = (userRoles: UserRole[], module: string): boolean =>
       'inicio', 'expensas', 'pagos', 'categorias-expensas', 
       'expensas-servicio', 'pagos-servicio', 'tipos-servicio',
       'propiedades', 'tipo-propiedades', 'usuario', 'usuarios', 
-      'duenos-propiedades', 'roles', 'reportes'
+      'duenos-propiedades', 'roles', 'reportes',
+      'recursos', 'reservas', 'incidentes', 'tipos-incidente'
     ],
     super: [
       'inicio', 'expensas', 'pagos', 'categorias-expensas', 
       'expensas-servicio', 'pagos-servicio', 'tipos-servicio',
       'propiedades', 'tipo-propiedades', 'usuario', 'usuarios', 
-      'duenos-propiedades', 'roles', 'reportes'
+      'duenos-propiedades', 'roles', 'reportes',
+      'recursos', 'reservas', 'incidentes', 'tipos-incidente'
     ],
     director: [
       'inicio', 'expensas', 'pagos', 'expensas-servicio', 
-      'propiedades', 'usuario', 'reportes'
+      'propiedades', 'usuario', 'reportes',
+      'recursos', 'reservas', 'incidentes'
     ],
     habitante: [
-      'inicio', 'pagos', 'propiedades', 'usuario'
+      'inicio', 'pagos', 'propiedades', 'usuario',
+      'recursos', 'reservas', 'incidentes'
     ],
     auxiliar: [
       'inicio', 'expensas', 'pagos', 'categorias-expensas', 
       'expensas-servicio', 'propiedades', 'tipo-propiedades', 
-      'usuario', 'usuarios', 'duenos-propiedades', 'reportes'
+      'usuario', 'usuarios', 'duenos-propiedades', 'reportes',
+      'recursos', 'reservas', 'incidentes'
     ],
     seguridad: [
-      'inicio', 'usuario'
+      'inicio', 'usuario', 'incidentes'
     ]
   };
 

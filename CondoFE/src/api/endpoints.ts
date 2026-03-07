@@ -20,6 +20,18 @@ export const ENDPOINTS = {
   serviceTypes: `${API_BASE_URL}/ServiceTypes`,
   serviceExpenses: `${API_BASE_URL}/ServiceExpenses`,
   servicePayments: `${API_BASE_URL}/ServicePayments`,
+  
+  // Resources endpoints
+  resources: `${API_BASE_URL}/Resources`,
+  resourceCosts: `${API_BASE_URL}/ResourceCosts`,
+  resourceBookings: `${API_BASE_URL}/ResourceBookings`,
+  myResourceBookings: `${API_BASE_URL}/ResourceBookings/MyBookings`,
+  
+  // Incidents endpoints
+  incidentTypes: `${API_BASE_URL}/IncidentTypes`,
+  incidentCosts: `${API_BASE_URL}/IncidentCosts`,
+  incidents: `${API_BASE_URL}/Incidents`,
+  myIncidents: `${API_BASE_URL}/Incidents/MyIncidents`,
 
   // Add other endpoints here
 };

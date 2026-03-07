@@ -16,6 +16,10 @@ import ServiceTypesContent from '../components/ServiceTypesContent';
 import ServiceExpensesContent from '../components/ServiceExpensesContent';
 import ServicePaymentsContent from '../components/ServicePaymentsContent';
 import RolesContent from '../components/RolesContent';
+import ResourcesContent from '../components/ResourcesContent';
+import ResourceBookingsContent from '../components/ResourceBookingsContent';
+import IncidentsContent from '../components/IncidentsContent';
+import IncidentTypesContent from '../components/IncidentTypesContent';
 
 interface Debt {
   code: string;
@@ -275,6 +279,62 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
               </Link>
             </li>
           )}
+          {canViewModule(userRoles, 'recursos') && (
+            <li>
+              <Link
+                to="/recursos"
+                className={`sidebar-link${location.pathname === '/recursos' ? ' active' : ''}`}
+                style={{ color: 'rgb(244,228,69)' }}
+              >
+                <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
+                  <svg width="18" height="18" fill="rgb(244,228,69)"><rect x="2" y="2" width="14" height="14" rx="2" /><circle cx="9" cy="9" r="3" /></svg>
+                </span>
+                Recursos Compartidos
+              </Link>
+            </li>
+          )}
+          {canViewModule(userRoles, 'reservas') && (
+            <li>
+              <Link
+                to="/reservas"
+                className={`sidebar-link${location.pathname === '/reservas' ? ' active' : ''}`}
+                style={{ color: 'rgb(244,228,69)' }}
+              >
+                <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
+                  <svg width="18" height="18" fill="rgb(244,228,69)"><rect x="3" y="4" width="12" height="12" rx="2" /><rect x="7" y="2" width="1.5" height="4" /><rect x="11" y="2" width="1.5" height="4" /></svg>
+                </span>
+                Reservas
+              </Link>
+            </li>
+          )}
+          {canViewModule(userRoles, 'incidentes') && (
+            <li>
+              <Link
+                to="/incidentes"
+                className={`sidebar-link${location.pathname === '/incidentes' ? ' active' : ''}`}
+                style={{ color: 'rgb(244,228,69)' }}
+              >
+                <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
+                  <svg width="18" height="18" fill="rgb(244,228,69)"><circle cx="9" cy="9" r="7" /><path d="M9 5v4M9 11h0" stroke="rgb(68,68,68)" strokeWidth="2" /></svg>
+                </span>
+                Incidentes
+              </Link>
+            </li>
+          )}
+          {canViewModule(userRoles, 'tipos-incidente') && (
+            <li>
+              <Link
+                to="/tipos-incidente"
+                className={`sidebar-link${location.pathname === '/tipos-incidente' ? ' active' : ''}`}
+                style={{ color: 'rgb(244,228,69)' }}
+              >
+                <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
+                  <svg width="18" height="18" fill="rgb(244,228,69)"><rect x="2" y="2" width="14" height="14" rx="2" /><path d="M9 6v4M9 12h0" stroke="rgb(68,68,68)" strokeWidth="2" /></svg>
+                </span>
+                Tipos de Incidente
+              </Link>
+            </li>
+          )}
           {canViewModule(userRoles, 'reportes') && (
             <li>
               <Link
@@ -322,6 +382,10 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
           { path: '/expensas-servicio', element: <ServiceExpensesContent token={token} /> },
           { path: '/pagos-servicio', element: <ServicePaymentsContent token={token} /> },
           { path: '/roles', element: <RolesContent token={token} /> },
+          { path: '/recursos', element: <ResourcesContent token={token} /> },
+          { path: '/reservas', element: <ResourceBookingsContent token={token} /> },
+          { path: '/incidentes', element: <IncidentsContent token={token} /> },
+          { path: '/tipos-incidente', element: <IncidentTypesContent token={token} /> },
         ])}
       </main>
       {/* Responsive styles */}

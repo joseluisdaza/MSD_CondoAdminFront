@@ -4,12 +4,11 @@ import { useUserRole } from '../hooks/useUserRole';
 
 interface Resource {
   id: number;
-  resourceName: string;
+  name: string;
   description: string;
-  capacity: number;
-  isAvailable: boolean;
-  location: string;
-  costPerHour?: number;
+  startDate: string;
+  endDate?: string | null;
+  photo?: string;
 }
 
 interface ResourcesContentProps {
@@ -25,13 +24,13 @@ const ResourcesContent: React.FC<ResourcesContentProps> = ({ token }) => {
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
-  const [formData, setFormData] = useState<Omit<Resource, 'id'>>({
-    resourceName: '',
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [formData, setFormData] = useState<Omit<Resource, 'id' | 'endDate'>>({
+    name: '',
     description: '',
-    capacity: 1,
-    isAvailable: true,
-    location: '',
-    costPerHour: 0,
+    startDate: new Date().toISOString(),
+    photo: '',
   });
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
@@ -70,13 +69,11 @@ const ResourcesContent: React.FC<ResourcesContentProps> = ({ token }) => {
   }, [fetchResources]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
+    const { name, value } = e.target;
     
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'number' ? parseFloat(value) || 0 : 
-              type === 'checkbox' ? (e.target as HTMLInputElement).checked :
-              value
+      [name]: value
     }));
   };
 
@@ -85,12 +82,10 @@ const ResourcesContent: React.FC<ResourcesContentProps> = ({ token }) => {
     setIsEditing(false);
     setSelectedResource(null);
     setFormData({
-      resourceName: '',
+      name: '',
       description: '',
-      capacity: 1,
-      isAvailable: true,
-      location: '',
-      costPerHour: 0,
+      startDate: new Date().toISOString().split('T')[0],
+      photo: '',
     });
     setMessage(null);
   };
@@ -100,12 +95,10 @@ const ResourcesContent: React.FC<ResourcesContentProps> = ({ token }) => {
     setIsEditing(true);
     setIsCreating(false);
     setFormData({
-      resourceName: resource.resourceName,
+      name: resource.name,
       description: resource.description,
-      capacity: resource.capacity,
-      isAvailable: resource.isAvailable,
-      location: resource.location,
-      costPerHour: resource.costPerHour,
+      startDate: resource.startDate.split('T')[0],
+      photo: resource.photo || '',
     });
     setMessage(null);
   };
@@ -118,13 +111,20 @@ const ResourcesContent: React.FC<ResourcesContentProps> = ({ token }) => {
       const url = isCreating ? ENDPOINTS.resources : `${ENDPOINTS.resources}/${selectedResource?.id}`;
       const method = isCreating ? 'POST' : 'PUT';
 
+      // Prepare data with id:0 for create, or actual id for update
+      const payload = {
+        id: isCreating ? 0 : selectedResource?.id || 0,
+        ...formData,
+        startDate: new Date(formData.startDate).toISOString()
+      };
+
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
@@ -152,7 +152,7 @@ const ResourcesContent: React.FC<ResourcesContentProps> = ({ token }) => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm('¿Está seguro de que desea eliminar este recurso?')) {
+    if (!window.confirm('¿Está seguro de que desea desactivar este recurso? Esta acción establecerá una fecha de fin para el recurso.')) {
       return;
     }
 
@@ -166,18 +166,18 @@ const ResourcesContent: React.FC<ResourcesContentProps> = ({ token }) => {
       });
 
       if (response.ok) {
-        setMessage({ text: 'Recurso eliminado exitosamente', type: 'success' });
+        setMessage({ text: 'Recurso desactivado exitosamente', type: 'success' });
         fetchResources();
       } else {
         const errorText = await response.text();
         setMessage({ 
-          text: errorText || `Error ${response.status}: No se pudo eliminar el recurso`, 
+          text: errorText || `Error ${response.status}: No se pudo desactivar el recurso`, 
           type: 'error' 
         });
       }
     } catch (error) {
       console.error('Error deleting resource:', error);
-      setMessage({ text: 'Error de conexión al eliminar recurso', type: 'error' });
+      setMessage({ text: 'Error de conexión al desactivar recurso', type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -189,6 +189,22 @@ const ResourcesContent: React.FC<ResourcesContentProps> = ({ token }) => {
     setSelectedResource(null);
     setMessage(null);
   };
+
+  // Filter resources based on search term and status
+  const filteredResources = resources.filter(resource => {
+    // Filter by search term (name or description)
+    const matchesSearch = searchTerm === '' || 
+      resource.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      resource.description.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Filter by status
+    const matchesStatus = 
+      statusFilter === 'all' ||
+      (statusFilter === 'active' && !resource.endDate) ||
+      (statusFilter === 'inactive' && !!resource.endDate);
+    
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <div style={{ padding: '20px' }}>
@@ -227,6 +243,64 @@ const ResourcesContent: React.FC<ResourcesContentProps> = ({ token }) => {
         </button>
       )}
 
+      {/* Search and Filter */}
+      {!isCreating && !isEditing && (
+        <div style={{
+          backgroundColor: 'white',
+          padding: '20px',
+          borderRadius: '8px',
+          marginBottom: '20px',
+          border: '1px solid #ddd',
+        }}>
+          <h3 style={{ marginBottom: '15px', color: 'rgb(68,68,68)' }}>Buscar y Filtrar</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '15px' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
+                Buscar por nombre o descripción
+              </label>
+              <input
+                type="text"
+                placeholder="Escriba para buscar..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  fontSize: '14px',
+                }}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
+                Estado
+              </label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  fontSize: '14px',
+                }}
+              >
+                <option value="all">Todos</option>
+                <option value="active">Activos</option>
+                <option value="inactive">Desactivados</option>
+              </select>
+            </div>
+          </div>
+          {(searchTerm || statusFilter !== 'all') && (
+            <div style={{ marginTop: '10px', color: 'rgb(68,68,68)', fontSize: '14px' }}>
+              Mostrando {filteredResources.length} de {resources.length} recursos
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Create/Edit Form */}
       {(isCreating || isEditing) && (
         <div style={{
@@ -246,10 +320,11 @@ const ResourcesContent: React.FC<ResourcesContentProps> = ({ token }) => {
               </label>
               <input
                 type="text"
-                name="resourceName"
-                value={formData.resourceName}
+                name="name"
+                value={formData.name}
                 onChange={handleInputChange}
                 required
+                placeholder="Ej: Salón de Eventos, Piscina, Cancha de Tenis"
                 style={{
                   width: '100%',
                   padding: '8px',
@@ -262,13 +337,15 @@ const ResourcesContent: React.FC<ResourcesContentProps> = ({ token }) => {
 
             <div style={{ marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
-                Descripción
+                Descripción *
               </label>
               <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
+                required
                 rows={3}
+                placeholder="Describa el recurso compartido..."
                 style={{
                   width: '100%',
                   padding: '8px',
@@ -281,14 +358,34 @@ const ResourcesContent: React.FC<ResourcesContentProps> = ({ token }) => {
 
             <div style={{ marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
-                Ubicación *
+                Fecha de Inicio *
+              </label>
+              <input
+                type="date"
+                name="startDate"
+                value={formData.startDate}
+                onChange={handleInputChange}
+                required
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  fontSize: '14px',
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
+                Foto (URL)
               </label>
               <input
                 type="text"
-                name="location"
-                value={formData.location}
+                name="photo"
+                value={formData.photo || ''}
                 onChange={handleInputChange}
-                required
+                placeholder="URL de la imagen del recurso"
                 style={{
                   width: '100%',
                   padding: '8px',
@@ -297,61 +394,6 @@ const ResourcesContent: React.FC<ResourcesContentProps> = ({ token }) => {
                   fontSize: '14px',
                 }}
               />
-            </div>
-
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
-                Capacidad *
-              </label>
-              <input
-                type="number"
-                name="capacity"
-                value={formData.capacity}
-                onChange={handleInputChange}
-                min="1"
-                required
-                style={{
-                  width: '100%',
-                  padding: '8px',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  fontSize: '14px',
-                }}
-              />
-            </div>
-
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
-                Costo por Hora ($)
-              </label>
-              <input
-                type="number"
-                name="costPerHour"
-                value={formData.costPerHour || 0}
-                onChange={handleInputChange}
-                min="0"
-                step="0.01"
-                style={{
-                  width: '100%',
-                  padding: '8px',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  fontSize: '14px',
-                }}
-              />
-            </div>
-
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'flex', alignItems: 'center', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
-                <input
-                  type="checkbox"
-                  name="isAvailable"
-                  checked={formData.isAvailable}
-                  onChange={handleInputChange}
-                  style={{ marginRight: '8px' }}
-                />
-                Disponible
-              </label>
             </div>
 
             <div style={{ display: 'flex', gap: '10px' }}>
@@ -393,81 +435,113 @@ const ResourcesContent: React.FC<ResourcesContentProps> = ({ token }) => {
       {/* Resources List */}
       {loading && resources.length === 0 ? (
         <p>Cargando recursos...</p>
-      ) : resources.length === 0 ? (
-        <p>No hay recursos disponibles.</p>
+      ) : filteredResources.length === 0 ? (
+        <p>{searchTerm || statusFilter !== 'all' ? 'No se encontraron recursos con los criterios de búsqueda.' : 'No hay recursos disponibles.'}</p>
       ) : (
         <div style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
           gap: '20px',
         }}>
-          {resources.map((resource) => (
+          {filteredResources.map((resource) => (
             <div
               key={resource.id}
               style={{
                 backgroundColor: 'white',
                 padding: '20px',
                 borderRadius: '8px',
-                border: '1px solid #ddd',
+                border: resource.endDate ? '1px solid #dc3545' : '1px solid #ddd',
                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                opacity: resource.endDate ? 0.7 : 1,
               }}
             >
+              {resource.photo && (
+                <div style={{
+                  width: '100%',
+                  height: '150px',
+                  marginBottom: '15px',
+                  borderRadius: '4px',
+                  overflow: 'hidden',
+                  backgroundColor: '#f0f0f0',
+                }}>
+                  <img 
+                    src={resource.photo} 
+                    alt={resource.name}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                    }}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                </div>
+              )}
+              {resource.endDate && (
+                <div style={{
+                  backgroundColor: '#dc3545',
+                  color: 'white',
+                  padding: '4px 8px',
+                  borderRadius: '4px',
+                  fontSize: '12px',
+                  fontWeight: 'bold',
+                  marginBottom: '10px',
+                  textAlign: 'center',
+                }}>
+                  RECURSO DESACTIVADO
+                </div>
+              )}
               <h3 style={{ marginBottom: '10px', color: 'rgb(68,68,68)' }}>
-                {resource.resourceName}
+                {resource.name}
               </h3>
               <p style={{ marginBottom: '8px', color: 'rgb(68,68,68)' }}>
                 <strong>Descripción:</strong> {resource.description || 'N/A'}
               </p>
               <p style={{ marginBottom: '8px', color: 'rgb(68,68,68)' }}>
-                <strong>Ubicación:</strong> {resource.location}
+                <strong>Fecha de Inicio:</strong> {new Date(resource.startDate).toLocaleDateString()}
               </p>
-              <p style={{ marginBottom: '8px', color: 'rgb(68,68,68)' }}>
-                <strong>Capacidad:</strong> {resource.capacity} personas
-              </p>
-              {resource.costPerHour !== undefined && resource.costPerHour > 0 && (
-                <p style={{ marginBottom: '8px', color: 'rgb(68,68,68)' }}>
-                  <strong>Costo:</strong> ${resource.costPerHour}/hora
+              {resource.endDate && (
+                <p style={{ marginBottom: '8px', color: '#dc3545', fontWeight: 'bold' }}>
+                  <strong>Fecha de Desactivación:</strong> {new Date(resource.endDate).toLocaleDateString()}
                 </p>
               )}
-              <p style={{ marginBottom: '8px', color: 'rgb(68,68,68)' }}>
-                <strong>Estado:</strong>{' '}
-                <span style={{ 
-                  color: resource.isAvailable ? '#28a745' : '#dc3545',
-                  fontWeight: 'bold' 
-                }}>
-                  {resource.isAvailable ? 'Disponible' : 'No Disponible'}
-                </span>
-              </p>
               
               {isAdmin && (
                 <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
                   <button
                     onClick={() => handleEdit(resource)}
+                    disabled={!!resource.endDate}
                     style={{
                       padding: '8px 16px',
-                      backgroundColor: '#007bff',
+                      backgroundColor: resource.endDate ? '#6c757d' : '#007bff',
                       color: 'white',
                       border: 'none',
                       borderRadius: '4px',
-                      cursor: 'pointer',
+                      cursor: resource.endDate ? 'not-allowed' : 'pointer',
                       fontSize: '14px',
+                      opacity: resource.endDate ? 0.6 : 1,
                     }}
+                    title={resource.endDate ? 'No se puede editar un recurso desactivado' : 'Editar recurso'}
                   >
                     Editar
                   </button>
                   <button
                     onClick={() => handleDelete(resource.id)}
+                    disabled={!!resource.endDate}
                     style={{
                       padding: '8px 16px',
-                      backgroundColor: '#dc3545',
+                      backgroundColor: resource.endDate ? '#6c757d' : '#dc3545',
                       color: 'white',
                       border: 'none',
                       borderRadius: '4px',
-                      cursor: 'pointer',
+                      cursor: resource.endDate ? 'not-allowed' : 'pointer',
                       fontSize: '14px',
+                      opacity: resource.endDate ? 0.6 : 1,
                     }}
+                    title={resource.endDate ? 'Recurso ya desactivado' : 'Desactivar recurso'}
                   >
-                    Eliminar
+                    {resource.endDate ? 'Desactivado' : 'Eliminar'}
                   </button>
                 </div>
               )}

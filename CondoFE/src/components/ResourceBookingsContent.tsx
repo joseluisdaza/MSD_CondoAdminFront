@@ -21,12 +21,11 @@ interface ResourceBooking {
 
 interface Resource {
   id: number;
-  resourceName: string;
+  name: string;
   description: string;
-  capacity: number;
-  isAvailable: boolean;
-  location: string;
-  costPerHour?: number;
+  startDate: string;
+  endDate?: string | null;
+  photo?: string;
 }
 
 interface Property {
@@ -107,7 +106,8 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
 
       if (response.ok) {
         const data = await response.json();
-        setResources(data.filter((r: Resource) => r.isAvailable));
+        // Filter only active resources (those without endDate)
+        setResources(data.filter((r: Resource) => !r.endDate));
       }
     } catch (error) {
       console.error('Error fetching resources:', error);
@@ -359,7 +359,7 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
                 <option value={0}>Seleccione un recurso</option>
                 {resources.map(resource => (
                   <option key={resource.id} value={resource.id}>
-                    {resource.resourceName} - {resource.location}
+                    {resource.name} - {resource.description}
                   </option>
                 ))}
               </select>

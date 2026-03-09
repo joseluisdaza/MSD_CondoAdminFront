@@ -24,6 +24,8 @@ export const ENDPOINTS = {
   // Resources endpoints
   resources: `${API_BASE_URL}/Resources`,
   resourceCosts: `${API_BASE_URL}/ResourceCosts`,
+  resourceCostsCurrent: (resourceId: number) => `${API_BASE_URL}/ResourceCosts/Current/${resourceId}`,
+  resourceCostsAdd: (resourceId: number) => `${API_BASE_URL}/ResourceCosts/Add/${resourceId}`,
   resourceBookings: `${API_BASE_URL}/ResourceBookings`,
   myResourceBookings: `${API_BASE_URL}/ResourceBookings/MyBookings`,
   

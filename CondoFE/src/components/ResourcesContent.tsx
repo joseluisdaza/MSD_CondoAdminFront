@@ -11,6 +11,14 @@ interface Resource {
   photo?: string;
 }
 
+interface ResourceCost {
+  id: number;
+  resourceId: number;
+  bookingPrice: number;
+  bookingWarrantyCost: number;
+  startDate: string;
+}
+
 interface ResourcesContentProps {
   token: string;
 }
@@ -32,6 +40,12 @@ const ResourcesContent: React.FC<ResourcesContentProps> = ({ token }) => {
     startDate: new Date().toISOString(),
     photo: '',
   });
+  const [costData, setCostData] = useState({
+    bookingPrice: 0,
+    bookingWarrantyCost: 0,
+  });
+  const [currentCost, setCurrentCost] = useState<ResourceCost | null>(null);
+  const [resourceCosts, setResourceCosts] = useState<Map<number, ResourceCost>>(new Map());
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
   // Fetch resources from API
@@ -49,6 +63,38 @@ const ResourcesContent: React.FC<ResourcesContentProps> = ({ token }) => {
       if (response.ok) {
         const data = await response.json();
         setResources(data);
+        
+        // Fetch costs for all resources
+        const costsPromises = data.map(async (resource: Resource) => {
+          try {
+            const costResponse = await fetch(ENDPOINTS.resourceCostsCurrent(resource.id), {
+              method: 'GET',
+              headers: {
+                'accept': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+            });
+            
+            if (costResponse.ok) {
+              const costData = await costResponse.json();
+              return { resourceId: resource.id, cost: costData };
+            }
+          } catch (error) {
+            console.error(`Error fetching cost for resource ${resource.id}:`, error);
+          }
+          return null;
+        });
+        
+        const costsResults = await Promise.all(costsPromises);
+        const costsMap = new Map<number, ResourceCost>();
+        
+        costsResults.forEach((result) => {
+          if (result && result.cost) {
+            costsMap.set(result.resourceId, result.cost);
+          }
+        });
+        
+        setResourceCosts(costsMap);
       } else {
         const errorText = await response.text();
         setMessage({ 
@@ -68,12 +114,78 @@ const ResourcesContent: React.FC<ResourcesContentProps> = ({ token }) => {
     fetchResources();
   }, [fetchResources]);
 
+  const fetchResourceCost = async (resourceId: number) => {
+    try {
+      const response = await fetch(ENDPOINTS.resourceCostsCurrent(resourceId), {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCurrentCost(data);
+        setCostData({
+          bookingPrice: data.bookingPrice || 0,
+          bookingWarrantyCost: data.bookingWarrantyCost || 0,
+        });
+      } else {
+        // No hay costo actual, usar valores por defecto
+        setCurrentCost(null);
+        setCostData({
+          bookingPrice: 0,
+          bookingWarrantyCost: 0,
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching resource cost:', error);
+      setCurrentCost(null);
+      setCostData({
+        bookingPrice: 0,
+        bookingWarrantyCost: 0,
+      });
+    }
+  };
+
+  const saveResourceCost = async (resourceId: number) => {
+    const response = await fetch(ENDPOINTS.resourceCostsAdd(resourceId), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(costData),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Error al guardar costos del recurso: ${errorText || response.statusText}`);
+    }
+    
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return await response.json();
+    }
+    
+    return null;
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+  };
+
+  const handleCostInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCostData(prev => ({
+      ...prev,
+      [name]: parseFloat(value) || 0
     }));
   };
 
@@ -87,6 +199,11 @@ const ResourcesContent: React.FC<ResourcesContentProps> = ({ token }) => {
       startDate: new Date().toISOString().split('T')[0],
       photo: '',
     });
+    setCostData({
+      bookingPrice: 0,
+      bookingWarrantyCost: 0,
+    });
+    setCurrentCost(null);
     setMessage(null);
   };
 
@@ -100,6 +217,8 @@ const ResourcesContent: React.FC<ResourcesContentProps> = ({ token }) => {
       startDate: resource.startDate.split('T')[0],
       photo: resource.photo || '',
     });
+    // Fetch current cost for this resource
+    fetchResourceCost(resource.id);
     setMessage(null);
   };
 
@@ -128,6 +247,23 @@ const ResourcesContent: React.FC<ResourcesContentProps> = ({ token }) => {
       });
 
       if (response.ok) {
+        const savedResource = await response.json();
+        const resourceId = isCreating ? savedResource.id : selectedResource?.id;
+        
+        // SIEMPRE guardar costos después de guardar el recurso
+        if (resourceId) {
+          try {
+            await saveResourceCost(resourceId);
+          } catch (costError) {
+            setMessage({ 
+              text: `Recurso guardado pero hubo un error al guardar los costos: ${costError instanceof Error ? costError.message : 'Error desconocido'}`, 
+              type: 'error' 
+            });
+            setLoading(false);
+            return;
+          }
+        }
+        
         setMessage({ 
           text: isCreating ? 'Recurso creado exitosamente' : 'Recurso actualizado exitosamente', 
           type: 'success' 
@@ -138,6 +274,7 @@ const ResourcesContent: React.FC<ResourcesContentProps> = ({ token }) => {
         fetchResources();
       } else {
         const errorText = await response.text();
+        console.error('Error saving resource:', response.status, errorText);
         setMessage({ 
           text: errorText || `Error ${response.status}: No se pudo guardar el recurso`, 
           type: 'error' 
@@ -396,6 +533,83 @@ const ResourcesContent: React.FC<ResourcesContentProps> = ({ token }) => {
               />
             </div>
 
+            {/* Costos y Garantía Section */}
+            <div style={{
+              backgroundColor: '#f8f9fa',
+              padding: '15px',
+              borderRadius: '8px',
+              marginBottom: '15px',
+              border: '1px solid #dee2e6',
+            }}>
+              <h4 style={{ 
+                marginTop: 0, 
+                marginBottom: '15px', 
+                color: 'rgb(68,68,68)',
+                fontSize: '16px',
+              }}>
+                Costos y Garantía
+              </h4>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
+                    Precio de Reserva ($)
+                  </label>
+                  <input
+                    type="number"
+                    name="bookingPrice"
+                    value={costData.bookingPrice}
+                    onChange={handleCostInputChange}
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      border: '1px solid #ddd',
+                      borderRadius: '4px',
+                      fontSize: '14px',
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
+                    Costo de Garantía ($)
+                  </label>
+                  <input
+                    type="number"
+                    name="bookingWarrantyCost"
+                    value={costData.bookingWarrantyCost}
+                    onChange={handleCostInputChange}
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      border: '1px solid #ddd',
+                      borderRadius: '4px',
+                      fontSize: '14px',
+                    }}
+                  />
+                </div>
+              </div>
+
+              {currentCost && (
+                <div style={{
+                  marginTop: '10px',
+                  padding: '8px',
+                  backgroundColor: '#e7f3ff',
+                  borderRadius: '4px',
+                  fontSize: '12px',
+                  color: '#004085',
+                }}>
+                  <strong>Costo actual vigente desde:</strong> {new Date(currentCost.startDate).toLocaleDateString()}
+                </div>
+              )}
+            </div>
+
             <div style={{ display: 'flex', gap: '10px' }}>
               <button
                 type="submit"
@@ -505,6 +719,33 @@ const ResourcesContent: React.FC<ResourcesContentProps> = ({ token }) => {
                 <p style={{ marginBottom: '8px', color: '#dc3545', fontWeight: 'bold' }}>
                   <strong>Fecha de Desactivación:</strong> {new Date(resource.endDate).toLocaleDateString()}
                 </p>
+              )}
+              
+              {/* Costos Section */}
+              {resourceCosts.has(resource.id) && (
+                <div style={{
+                  backgroundColor: '#f8f9fa',
+                  padding: '10px',
+                  borderRadius: '4px',
+                  marginTop: '10px',
+                  marginBottom: '10px',
+                  border: '1px solid #dee2e6',
+                }}>
+                  <p style={{ 
+                    marginBottom: '5px', 
+                    color: 'rgb(68,68,68)', 
+                    fontSize: '13px',
+                    fontWeight: 'bold',
+                  }}>
+                    Costos de Reserva
+                  </p>
+                  <p style={{ marginBottom: '3px', color: 'rgb(68,68,68)', fontSize: '12px' }}>
+                    <strong>Precio:</strong> ${resourceCosts.get(resource.id)?.bookingPrice.toFixed(2)}
+                  </p>
+                  <p style={{ marginBottom: '0', color: 'rgb(68,68,68)', fontSize: '12px' }}>
+                    <strong>Garantía:</strong> ${resourceCosts.get(resource.id)?.bookingWarrantyCost.toFixed(2)}
+                  </p>
+                </div>
               )}
               
               {isAdmin && (

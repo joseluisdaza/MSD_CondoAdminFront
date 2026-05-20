@@ -7,6 +7,10 @@ import LandingPage from './pages/LandingPage';
 function App() {
   const [token, setToken] = useState<string | null>(null);
 
+  const handleLogout = () => {
+    setToken(null);
+  };
+
   if (!token) {
     return <LoginPage onLogin={setToken} />;
   }
@@ -14,7 +18,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/*" element={<LandingPage token={token} />} />
+        <Route path="/*" element={<LandingPage token={token} onLogout={handleLogout} />} />
         <Route path="/login" element={<LoginPage onLogin={setToken} />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

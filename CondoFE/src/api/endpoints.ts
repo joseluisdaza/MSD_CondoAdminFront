@@ -6,6 +6,7 @@ export const ENDPOINTS = {
   health: `${API_BASE_URL}/Health`,
   authHealth: `${API_BASE_URL}/AuthHealthCheck`,
   login: `${API_BASE_URL}/Auth/Login`,
+  logout: `${API_BASE_URL}/Auth/logout`,
   currentUser: `${API_BASE_URL}/Users/me`,
   property: `${API_BASE_URL}/Property`,
   propertyType: `${API_BASE_URL}/PropertyType`,

@@ -26,7 +26,25 @@ interface Debt {
   amount: number;
 }
 
-const LandingPage: React.FC<{ token: string }> = ({ token }) => {
+const LandingPage: React.FC<{ token: string; onLogout: () => void }> = ({ token, onLogout }) => {
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  const confirmLogout = async () => {
+    setShowLogoutModal(false);
+    try {
+      await fetch(ENDPOINTS.logout, {
+        method: 'POST',
+        headers: {
+          'accept': '*/*',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+    } catch {
+      // Proceed with local logout even if the request fails
+    } finally {
+      onLogout();
+    }
+  };
   const { userRoles } = useUserRole(token);
   const [debts, setDebts] = useState<Debt[]>([
     {
@@ -57,6 +75,59 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
 
   return (
   <div style={{ display: 'flex', minHeight: '100vh', position: 'relative', background: 'rgb(244,228,69)', color: 'rgb(244,228,69)' }}>
+      {/* Logout confirmation modal */}
+      {showLogoutModal && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 2000,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <div style={{
+            background: 'rgb(68,68,68)',
+            color: 'rgb(244,228,69)',
+            borderRadius: 8,
+            padding: '32px 28px',
+            minWidth: 300,
+            boxShadow: '0 4px 24px rgba(0,0,0,0.4)',
+            textAlign: 'center',
+          }}>
+            <p style={{ fontSize: 17, marginBottom: 24 }}>
+              ¿Estás seguro de que deseas cerrar sesión?
+            </p>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+              <button
+                onClick={confirmLogout}
+                style={{
+                  background: 'rgb(244,228,69)',
+                  color: 'rgb(68,68,68)',
+                  border: 'none',
+                  borderRadius: 4,
+                  padding: '8px 24px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  fontSize: 14,
+                }}
+              >
+                Sí, cerrar sesión
+              </button>
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                style={{
+                  background: 'transparent',
+                  color: 'rgb(244,228,69)',
+                  border: '1px solid rgb(244,228,69)',
+                  borderRadius: 4,
+                  padding: '8px 24px',
+                  cursor: 'pointer',
+                  fontSize: 14,
+                }}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Hamburger menu for mobile */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -350,6 +421,26 @@ const LandingPage: React.FC<{ token: string }> = ({ token }) => {
             </li>
           )}
         </ul>
+        <button
+          onClick={() => setShowLogoutModal(true)}
+          style={{
+            marginTop: 24,
+            width: '100%',
+            background: 'transparent',
+            border: '1px solid rgb(244,228,69)',
+            color: 'rgb(244,228,69)',
+            padding: '8px 12px',
+            cursor: 'pointer',
+            borderRadius: 4,
+            fontSize: 14,
+            textAlign: 'left',
+          }}
+        >
+          <span style={{ marginRight: 8, verticalAlign: 'middle' }}>
+            <svg width="18" height="18" fill="none" stroke="rgb(244,228,69)" strokeWidth="2"><path d="M11 16H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h6M15 12l3-3-3-3M18 9H8" /></svg>
+          </span>
+          Cerrar sesión
+        </button>
       </nav>
       {/* Main content */}
       <main

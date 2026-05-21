@@ -7,13 +7,17 @@ interface ResourceBooking {
   resourceId: number;
   userId: number;
   propertyId: number;
+  statusId: number;
   bookingDate: string;
-  startTime: string;
-  endTime: string;
+  startTime: string | null;
+  endTime: string | null;
+  bookingEndDate: string;
+  bookingPrice: number;
+  bookingWarrantyCost: number;
+  bookingDescription: string;
+  bookingPhoto: string | null;
   purpose: string;
   numberOfPeople: number;
-  totalCost: number;
-  bookingStatus: string;
   resourceName?: string;
   userName?: string;
   propertyCode?: string;
@@ -38,6 +42,75 @@ interface ResourceBookingsContentProps {
   token: string;
 }
 
+const DEFAULT_STATUS_ID = 1;
+
+const statusOptions = [
+  { value: 1, label: 'Pendiente' },
+  { value: 2, label: 'Confirmada' },
+  { value: 3, label: 'Cancelada' },
+  { value: 4, label: 'Finalizada' },
+];
+
+const toDatetimeLocal = (value: string | null | undefined) => {
+  if (!value) return '';
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return '';
+  const tzOffset = parsed.getTimezoneOffset();
+  const localDate = new Date(parsed.getTime() - tzOffset * 60000);
+  return localDate.toISOString().slice(0, 16);
+};
+
+const toIsoOrNull = (value: string) => {
+  if (!value) return null;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
+};
+
+const toTimeString = (isoDate: string) => {
+  const parsed = new Date(isoDate);
+  if (Number.isNaN(parsed.getTime())) {
+    return '00:00:00';
+  }
+  const hh = String(parsed.getHours()).padStart(2, '0');
+  const mm = String(parsed.getMinutes()).padStart(2, '0');
+  const ss = String(parsed.getSeconds()).padStart(2, '0');
+  return `${hh}:${mm}:${ss}`;
+};
+
+const getEndOfDayIsoFromIso = (startIso: string) => {
+  const parsed = new Date(startIso);
+  if (Number.isNaN(parsed.getTime())) return new Date().toISOString();
+  const endOfDay = new Date(parsed);
+  endOfDay.setHours(23, 59, 59, 0);
+  return endOfDay.toISOString();
+};
+
+const getStatusLabel = (statusId: number) => {
+  const status = statusOptions.find(option => option.value === statusId);
+  return status?.label || `Estado ${statusId}`;
+};
+
+const normalizeBooking = (booking: Partial<ResourceBooking>): ResourceBooking => ({
+  id: booking.id || 0,
+  resourceId: booking.resourceId || 0,
+  userId: booking.userId || 0,
+  propertyId: booking.propertyId || 0,
+  statusId: booking.statusId || DEFAULT_STATUS_ID,
+  bookingDate: booking.bookingDate || new Date().toISOString(),
+  startTime: booking.startTime || null,
+  endTime: booking.endTime || null,
+  bookingEndDate: booking.bookingEndDate || booking.bookingDate || new Date().toISOString(),
+  bookingPrice: booking.bookingPrice || 0,
+  bookingWarrantyCost: booking.bookingWarrantyCost || 0,
+  bookingDescription: booking.bookingDescription || '',
+  bookingPhoto: booking.bookingPhoto || null,
+  purpose: booking.purpose || '',
+  numberOfPeople: booking.numberOfPeople || 0,
+  resourceName: booking.resourceName,
+  userName: booking.userName,
+  propertyCode: booking.propertyCode,
+});
+
 const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token }) => {
   const { userRoles } = useUserRole(token);
   const isAdmin = userRoles.includes('admin') || userRoles.includes('super');
@@ -50,13 +123,19 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [showMyBookings, setShowMyBookings] = useState(!isAdmin);
-  const [formData, setFormData] = useState<Omit<ResourceBooking, 'id' | 'resourceName' | 'userName' | 'propertyCode' | 'totalCost' | 'bookingStatus'>>({
+  const [formData, setFormData] = useState<Omit<ResourceBooking, 'id' | 'resourceName' | 'userName' | 'propertyCode'>>({
     resourceId: 0,
     userId: 0,
     propertyId: 0,
-    bookingDate: '',
-    startTime: '',
-    endTime: '',
+    statusId: DEFAULT_STATUS_ID,
+    bookingDate: new Date().toISOString(),
+    startTime: null,
+    endTime: null,
+    bookingEndDate: new Date().toISOString(),
+    bookingPrice: 0,
+    bookingWarrantyCost: 0,
+    bookingDescription: '',
+    bookingPhoto: null,
     purpose: '',
     numberOfPeople: 1,
   });
@@ -77,7 +156,8 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
 
       if (response.ok) {
         const data = await response.json();
-        setBookings(data);
+        const normalized = (Array.isArray(data) ? data : []).map((item) => normalizeBooking(item));
+        setBookings(normalized);
       } else {
         const errorText = await response.text();
         setMessage({ 
@@ -143,10 +223,11 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
+    const numericFields = ['resourceId', 'propertyId', 'statusId', 'bookingPrice', 'bookingWarrantyCost', 'numberOfPeople'];
     
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'number' ? parseInt(value) || 0 : value
+      [name]: type === 'number' || numericFields.includes(name) ? Number(value) || 0 : value
     }));
   };
 
@@ -155,16 +236,23 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
     setIsEditing(false);
     setSelectedBooking(null);
     
-    // Get today's date in YYYY-MM-DD format
-    const today = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    now.setSeconds(0, 0);
+    const bookingDateIso = now.toISOString();
     
     setFormData({
       resourceId: resources.length > 0 ? resources[0].id : 0,
       userId: 0,
       propertyId: properties.length > 0 ? properties[0].id : 0,
-      bookingDate: today,
-      startTime: '09:00',
-      endTime: '10:00',
+      statusId: DEFAULT_STATUS_ID,
+      bookingDate: bookingDateIso,
+      startTime: null,
+      endTime: null,
+      bookingEndDate: getEndOfDayIsoFromIso(bookingDateIso),
+      bookingPrice: 0,
+      bookingWarrantyCost: 0,
+      bookingDescription: '',
+      bookingPhoto: null,
       purpose: '',
       numberOfPeople: 1,
     });
@@ -179,9 +267,15 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
       resourceId: booking.resourceId,
       userId: booking.userId,
       propertyId: booking.propertyId,
-      bookingDate: booking.bookingDate.split('T')[0],
-      startTime: booking.startTime,
-      endTime: booking.endTime,
+      statusId: booking.statusId,
+      bookingDate: booking.bookingDate,
+      startTime: null,
+      endTime: null,
+      bookingEndDate: getEndOfDayIsoFromIso(booking.bookingDate),
+      bookingPrice: booking.bookingPrice,
+      bookingWarrantyCost: booking.bookingWarrantyCost,
+      bookingDescription: booking.bookingDescription,
+      bookingPhoto: booking.bookingPhoto,
       purpose: booking.purpose,
       numberOfPeople: booking.numberOfPeople,
     });
@@ -195,14 +289,35 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
     try {
       const url = isCreating ? ENDPOINTS.resourceBookings : `${ENDPOINTS.resourceBookings}/${selectedBooking?.id}`;
       const method = isCreating ? 'POST' : 'PUT';
+      const normalizedBookingDate = toIsoOrNull(toDatetimeLocal(formData.bookingDate)) || new Date().toISOString();
+      const normalizedBookingEndDate = toIsoOrNull(toDatetimeLocal(formData.bookingEndDate)) || new Date().toISOString();
+
+      const payload = {
+        id: isCreating ? 0 : selectedBooking?.id || 0,
+        resourceId: Number(formData.resourceId) || 0,
+        userId: formData.userId,
+        propertyId: Number(formData.propertyId) || 0,
+        statusId: Number(formData.statusId) || DEFAULT_STATUS_ID,
+        bookingDate: normalizedBookingDate,
+        startTime: toTimeString(normalizedBookingDate),
+        endTime: toTimeString(normalizedBookingEndDate),
+        bookingEndDate: normalizedBookingEndDate,
+        bookingPrice: Number(formData.bookingPrice) || 0,
+        bookingWarrantyCost: Number(formData.bookingWarrantyCost) || 0,
+        bookingDescription: formData.bookingDescription,
+        bookingPhoto: formData.bookingPhoto || '',
+        purpose: formData.purpose || '',
+        numberOfPeople: Number(formData.numberOfPeople) || 0,
+      };
 
       const response = await fetch(url, {
         method,
         headers: {
+          'accept': '*/*',
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
@@ -393,15 +508,21 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
 
             <div style={{ marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
-                Fecha de Reserva *
+                Fecha y hora de Inicio *
               </label>
               <input
-                type="date"
+                type="datetime-local"
                 name="bookingDate"
-                value={formData.bookingDate}
-                onChange={handleInputChange}
+                value={toDatetimeLocal(formData.bookingDate)}
+                onChange={(e) => {
+                  const isoValue = toIsoOrNull(e.target.value) || new Date().toISOString();
+                  setFormData(prev => ({
+                    ...prev,
+                    bookingDate: isoValue,
+                    bookingEndDate: getEndOfDayIsoFromIso(isoValue),
+                  }));
+                }}
                 required
-                min={new Date().toISOString().split('T')[0]}
                 style={{
                   width: '100%',
                   padding: '8px',
@@ -412,17 +533,39 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
               />
             </div>
 
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
+                Fecha y Hora de Fin *
+              </label>
+              <input
+                type="datetime-local"
+                name="bookingEndDate"
+                value={toDatetimeLocal(formData.bookingEndDate)}
+                readOnly
+                required
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  fontSize: '14px',
+                  backgroundColor: '#f1f3f5',
+                }}
+              />
+            </div>
+
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
-                  Hora de Inicio *
+                  Precio de Reserva
                 </label>
                 <input
-                  type="time"
-                  name="startTime"
-                  value={formData.startTime}
+                  type="number"
+                  name="bookingPrice"
+                  value={formData.bookingPrice}
                   onChange={handleInputChange}
-                  required
+                  min="0"
+                  step="0.01"
                   style={{
                     width: '100%',
                     padding: '8px',
@@ -435,14 +578,15 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
 
               <div>
                 <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
-                  Hora de Fin *
+                  Precio de Garantía
                 </label>
                 <input
-                  type="time"
-                  name="endTime"
-                  value={formData.endTime}
+                  type="number"
+                  name="bookingWarrantyCost"
+                  value={formData.bookingWarrantyCost}
                   onChange={handleInputChange}
-                  required
+                  min="0"
+                  step="0.01"
                   style={{
                     width: '100%',
                     padding: '8px',
@@ -452,6 +596,47 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
                   }}
                 />
               </div>
+            </div>
+
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
+                Estado
+              </label>
+              <select
+                name="statusId"
+                value={formData.statusId}
+                onChange={handleInputChange}
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  fontSize: '14px',
+                }}
+              >
+                {statusOptions.map(option => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
+                Descripción de la Reserva
+              </label>
+              <textarea
+                name="bookingDescription"
+                value={formData.bookingDescription}
+                onChange={handleInputChange}
+                rows={3}
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  fontSize: '14px',
+                }}
+              />
             </div>
 
             <div style={{ marginBottom: '15px' }}>
@@ -465,26 +650,6 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
                 onChange={handleInputChange}
                 min="1"
                 required
-                style={{
-                  width: '100%',
-                  padding: '8px',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  fontSize: '14px',
-                }}
-              />
-            </div>
-
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
-                Propósito *
-              </label>
-              <textarea
-                name="purpose"
-                value={formData.purpose}
-                onChange={handleInputChange}
-                required
-                rows={3}
                 style={{
                   width: '100%',
                   padding: '8px',
@@ -509,7 +674,7 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
                   fontSize: '14px',
                 }}
               >
-                {loading ? 'Guardando...' : 'Guardar'}
+                {loading ? (isEditing ? 'Actualizando...' : 'Guardando...') : (isEditing ? 'Actualizar' : 'Guardar')}
               </button>
               <button
                 type="button"
@@ -549,17 +714,17 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
             <thead>
               <tr style={{ backgroundColor: 'rgb(68,68,68)', color: 'rgb(244,228,69)' }}>
                 <th style={{ padding: '12px', textAlign: 'left' }}>Recurso</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>Fecha</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>Horario</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>Inicio</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>Fin</th>
                 <th style={{ padding: '12px', textAlign: 'left' }}>Personas</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>Propósito</th>
                 {!showMyBookings && isAdmin && (
                   <>
                     <th style={{ padding: '12px', textAlign: 'left' }}>Usuario</th>
                     <th style={{ padding: '12px', textAlign: 'left' }}>Propiedad</th>
                   </>
                 )}
-                <th style={{ padding: '12px', textAlign: 'left' }}>Costo</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>Precio</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>Garantía</th>
                 <th style={{ padding: '12px', textAlign: 'left' }}>Estado</th>
                 <th style={{ padding: '12px', textAlign: 'left' }}>Acciones</th>
               </tr>
@@ -574,16 +739,13 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
                     {booking.resourceName || `Recurso #${booking.resourceId}`}
                   </td>
                   <td style={{ padding: '12px', color: 'rgb(68,68,68)' }}>
-                    {new Date(booking.bookingDate).toLocaleDateString()}
+                    {new Date(booking.bookingDate).toLocaleString()}
                   </td>
                   <td style={{ padding: '12px', color: 'rgb(68,68,68)' }}>
-                    {booking.startTime} - {booking.endTime}
+                    {new Date(booking.bookingEndDate).toLocaleString()}
                   </td>
                   <td style={{ padding: '12px', color: 'rgb(68,68,68)' }}>
                     {booking.numberOfPeople}
-                  </td>
-                  <td style={{ padding: '12px', color: 'rgb(68,68,68)' }}>
-                    {booking.purpose}
                   </td>
                   {!showMyBookings && isAdmin && (
                     <>
@@ -596,7 +758,10 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
                     </>
                   )}
                   <td style={{ padding: '12px', color: 'rgb(68,68,68)' }}>
-                    ${booking.totalCost?.toFixed(2) || '0.00'}
+                    ${booking.bookingPrice.toFixed(2)}
+                  </td>
+                  <td style={{ padding: '12px', color: 'rgb(68,68,68)' }}>
+                    ${booking.bookingWarrantyCost.toFixed(2)}
                   </td>
                   <td style={{ padding: '12px' }}>
                     <span style={{
@@ -604,10 +769,10 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
                       borderRadius: '4px',
                       fontSize: '12px',
                       fontWeight: 'bold',
-                      backgroundColor: booking.bookingStatus === 'Confirmed' ? '#d4edda' : '#fff3cd',
-                      color: booking.bookingStatus === 'Confirmed' ? '#155724' : '#856404',
+                      backgroundColor: booking.statusId === 2 ? '#d4edda' : booking.statusId === 3 ? '#f8d7da' : '#fff3cd',
+                      color: booking.statusId === 2 ? '#155724' : booking.statusId === 3 ? '#721c24' : '#856404',
                     }}>
-                      {booking.bookingStatus || 'Pendiente'}
+                      {getStatusLabel(booking.statusId)}
                     </span>
                   </td>
                   <td style={{ padding: '12px' }}>

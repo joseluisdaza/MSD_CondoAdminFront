@@ -16,6 +16,11 @@ interface UserFormData {
   login: string;
 }
 
+interface CreateUserFormData extends UserFormData {
+  password: string;
+  confirmPassword: string;
+}
+
 interface PasswordChangeData {
   newPassword: string;
   confirmPassword: string;
@@ -40,7 +45,17 @@ const UsuariosContent: React.FC<UsuariosContentProps> = ({ token }) => {
     newPassword: '',
     confirmPassword: ''
   });
+  const [createFormData, setCreateFormData] = useState<CreateUserFormData>({
+    userName: '',
+    lastName: '',
+    legalId: '',
+    login: '',
+    password: '',
+    confirmPassword: ''
+  });
   const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [creating, setCreating] = useState(false);
   const [updatingPassword, setUpdatingPassword] = useState(false);
   const [updating, setUpdating] = useState(false);
 
@@ -132,7 +147,46 @@ const UsuariosContent: React.FC<UsuariosContentProps> = ({ token }) => {
     }
   };
 
+  const createUser = async (userData: CreateUserFormData) => {
+    try {
+      setCreating(true);
+      setError(null);
+
+      const payload = {
+        userName: userData.userName,
+        lastName: userData.lastName,
+        legalId: userData.legalId,
+        login: userData.login,
+        password: userData.password
+      };
+
+      const response = await fetch(ENDPOINTS.users, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+
+      await fetchUsers();
+      setShowCreateForm(false);
+      resetCreateForm();
+    } catch (err) {
+      console.error('Error creating user:', err);
+      setError(err instanceof Error ? err.message : 'Error desconocido al crear usuario');
+    } finally {
+      setCreating(false);
+    }
+  };
+
   const handleEditUser = (user: User) => {
+    setShowCreateForm(false);
+    resetCreateForm();
     setEditingUser(user);
     setFormData({
       userName: user.userName,
@@ -148,6 +202,19 @@ const UsuariosContent: React.FC<UsuariosContentProps> = ({ token }) => {
     resetForm();
     resetPasswordForm();
     setShowPasswordForm(false);
+  };
+
+  const handleCreateUser = () => {
+    setShowCreateForm(true);
+    setEditingUser(null);
+    setShowPasswordForm(false);
+    resetForm();
+    setError(null);
+  };
+
+  const handleCancelCreate = () => {
+    setShowCreateForm(false);
+    resetCreateForm();
   };
 
   const resetForm = () => {
@@ -166,6 +233,17 @@ const UsuariosContent: React.FC<UsuariosContentProps> = ({ token }) => {
     });
   };
 
+  const resetCreateForm = () => {
+    setCreateFormData({
+      userName: '',
+      lastName: '',
+      legalId: '',
+      login: '',
+      password: '',
+      confirmPassword: ''
+    });
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -177,6 +255,14 @@ const UsuariosContent: React.FC<UsuariosContentProps> = ({ token }) => {
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setPasswordData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleCreateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCreateFormData(prev => ({
       ...prev,
       [name]: value
     }));
@@ -198,6 +284,15 @@ const UsuariosContent: React.FC<UsuariosContentProps> = ({ token }) => {
     }
   };
 
+  const handleSubmitCreate = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (createFormData.password !== createFormData.confirmPassword) {
+      setError('Las contraseñas no coinciden');
+      return;
+    }
+    createUser(createFormData);
+  };
+
   useEffect(() => {
     fetchUsers();
   }, [fetchUsers]);
@@ -212,7 +307,7 @@ const UsuariosContent: React.FC<UsuariosContentProps> = ({ token }) => {
   }
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '20px', display: 'flex', flexDirection: 'column' }}>
       <h2 style={{ color: 'rgb(68,68,68)', marginBottom: '20px' }}>Gestión de Usuarios</h2>
       
       {error && (
@@ -228,23 +323,225 @@ const UsuariosContent: React.FC<UsuariosContentProps> = ({ token }) => {
         </div>
       )}
       
-      <button 
-        onClick={fetchUsers}
-        style={{
-          background: 'rgb(68,68,68)',
-          color: 'rgb(244,228,69)',
-          border: 'none',
-          padding: '10px 20px',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          marginBottom: '20px'
-        }}
-      >
-        Actualizar Lista
-      </button>
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
+        <button 
+          onClick={fetchUsers}
+          style={{
+            background: 'rgb(68,68,68)',
+            color: 'rgb(244,228,69)',
+            border: 'none',
+            padding: '8px 16px',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          Actualizar Lista
+        </button>
+
+        <button
+          onClick={handleCreateUser}
+          disabled={creating || updating || loading}
+          style={{
+            background: 'rgb(244,228,69)',
+            color: 'rgb(68,68,68)',
+            border: '1px solid rgb(68,68,68)',
+            padding: '8px 16px',
+            borderRadius: '4px',
+            cursor: (creating || updating || loading) ? 'not-allowed' : 'pointer',
+            fontWeight: 'bold'
+          }}
+        >
+          Nuevo Usuario
+        </button>
+      </div>
+
+      {showCreateForm && (
+        <div style={{
+          background: 'white',
+          padding: '20px',
+          borderRadius: '8px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          border: '2px solid rgb(68,68,68)',
+          marginBottom: '30px'
+        }}>
+          <h3 style={{ color: 'rgb(68,68,68)', marginBottom: '20px' }}>Crear Nuevo Usuario</h3>
+
+          <form onSubmit={handleSubmitCreate}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
+                  Nombre:
+                </label>
+                <input
+                  type="text"
+                  name="userName"
+                  value={createFormData.userName}
+                  onChange={handleCreateInputChange}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    border: '1px solid #ddd',
+                    borderRadius: '4px',
+                    fontSize: '14px'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
+                  Apellido:
+                </label>
+                <input
+                  type="text"
+                  name="lastName"
+                  value={createFormData.lastName}
+                  onChange={handleCreateInputChange}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    border: '1px solid #ddd',
+                    borderRadius: '4px',
+                    fontSize: '14px'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
+                  Cédula:
+                </label>
+                <input
+                  type="text"
+                  name="legalId"
+                  value={createFormData.legalId}
+                  onChange={handleCreateInputChange}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    border: '1px solid #ddd',
+                    borderRadius: '4px',
+                    fontSize: '14px'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
+                  Login:
+                </label>
+                <input
+                  type="text"
+                  name="login"
+                  value={createFormData.login}
+                  onChange={handleCreateInputChange}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    border: '1px solid #ddd',
+                    borderRadius: '4px',
+                    fontSize: '14px'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
+                  Contraseña:
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={createFormData.password}
+                  onChange={handleCreateInputChange}
+                  required
+                  minLength={6}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    border: '1px solid #ddd',
+                    borderRadius: '4px',
+                    fontSize: '14px'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
+                  Confirmar Contraseña:
+                </label>
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  value={createFormData.confirmPassword}
+                  onChange={handleCreateInputChange}
+                  required
+                  minLength={6}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    border: '1px solid #ddd',
+                    borderRadius: '4px',
+                    fontSize: '14px'
+                  }}
+                />
+              </div>
+            </div>
+
+            {createFormData.password && createFormData.confirmPassword &&
+             createFormData.password !== createFormData.confirmPassword && (
+              <div style={{
+                color: '#c62828',
+                fontSize: '14px',
+                marginBottom: '15px'
+              }}>
+                Las contraseñas no coinciden
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              <button
+                type="submit"
+                disabled={creating || createFormData.password !== createFormData.confirmPassword || !createFormData.password}
+                style={{
+                  background: (creating || createFormData.password !== createFormData.confirmPassword || !createFormData.password) ? '#ccc' : 'rgb(68,68,68)',
+                  color: (creating || createFormData.password !== createFormData.confirmPassword || !createFormData.password) ? '#666' : 'rgb(244,228,69)',
+                  border: 'none',
+                  padding: '10px 20px',
+                  borderRadius: '4px',
+                  cursor: (creating || createFormData.password !== createFormData.confirmPassword || !createFormData.password) ? 'not-allowed' : 'pointer',
+                  fontSize: '14px'
+                }}
+              >
+                {creating ? 'Creando...' : 'Crear Usuario'}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleCancelCreate}
+                disabled={creating}
+                style={{
+                  background: 'transparent',
+                  color: 'rgb(68,68,68)',
+                  border: '1px solid rgb(68,68,68)',
+                  padding: '10px 20px',
+                  borderRadius: '4px',
+                  cursor: creating ? 'not-allowed' : 'pointer',
+                  fontSize: '14px'
+                }}
+              >
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {/* Users Table */}
-      <div style={{ marginBottom: '30px' }}>
+      <div style={{ marginBottom: '30px', order: 2 }}>
         <h3 style={{ color: 'rgb(68,68,68)', marginBottom: '15px' }}>Lista de Usuarios</h3>
         {users.length === 0 ? (
           <p>No se encontraron usuarios.</p>
@@ -310,7 +607,9 @@ const UsuariosContent: React.FC<UsuariosContentProps> = ({ token }) => {
           padding: '20px',
           borderRadius: '8px',
           boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          border: '2px solid rgb(68,68,68)'
+          border: '2px solid rgb(68,68,68)',
+          marginBottom: '30px',
+          order: 1
         }}>
           <h3 style={{ color: 'rgb(68,68,68)', marginBottom: '20px' }}>
             Editar Usuario: {editingUser.userName}

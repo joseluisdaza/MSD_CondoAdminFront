@@ -85,6 +85,31 @@ const getEndOfDayIsoFromIso = (startIso: string) => {
   return endOfDay.toISOString();
 };
 
+const getIsoPlusOneHour = (isoDate: string) => {
+  const parsed = new Date(isoDate);
+  if (Number.isNaN(parsed.getTime())) return new Date().toISOString();
+  parsed.setHours(parsed.getHours() + 1, 0, 0, 0);
+  return parsed.toISOString();
+};
+
+const isEndOfDayForStart = (startIso: string, endIso: string) => {
+  const start = new Date(startIso);
+  const end = new Date(endIso);
+
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+    return false;
+  }
+
+  return (
+    start.getFullYear() === end.getFullYear() &&
+    start.getMonth() === end.getMonth() &&
+    start.getDate() === end.getDate() &&
+    end.getHours() === 23 &&
+    end.getMinutes() === 59 &&
+    end.getSeconds() === 59
+  );
+};
+
 const getStatusLabel = (statusId: number) => {
   const status = statusOptions.find(option => option.value === statusId);
   return status?.label || `Estado ${statusId}`;
@@ -122,7 +147,12 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
   const [selectedBooking, setSelectedBooking] = useState<ResourceBooking | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [isAllDay, setIsAllDay] = useState(true);
   const [showMyBookings, setShowMyBookings] = useState(!isAdmin);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [resourceNameFilter, setResourceNameFilter] = useState('');
+  const [dateFromFilter, setDateFromFilter] = useState('');
+  const [dateToFilter, setDateToFilter] = useState('');
   const [formData, setFormData] = useState<Omit<ResourceBooking, 'id' | 'resourceName' | 'userName' | 'propertyCode'>>({
     resourceId: 0,
     userId: 0,
@@ -239,6 +269,7 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
     const now = new Date();
     now.setSeconds(0, 0);
     const bookingDateIso = now.toISOString();
+    setIsAllDay(true);
     
     setFormData({
       resourceId: resources.length > 0 ? resources[0].id : 0,
@@ -263,6 +294,7 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
     setSelectedBooking(booking);
     setIsEditing(true);
     setIsCreating(false);
+    setIsAllDay(isEndOfDayForStart(booking.bookingDate, booking.bookingEndDate));
     setFormData({
       resourceId: booking.resourceId,
       userId: booking.userId,
@@ -271,7 +303,7 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
       bookingDate: booking.bookingDate,
       startTime: null,
       endTime: null,
-      bookingEndDate: getEndOfDayIsoFromIso(booking.bookingDate),
+      bookingEndDate: booking.bookingEndDate,
       bookingPrice: booking.bookingPrice,
       bookingWarrantyCost: booking.bookingWarrantyCost,
       bookingDescription: booking.bookingDescription,
@@ -284,13 +316,27 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const normalizedBookingDate = toIsoOrNull(toDatetimeLocal(formData.bookingDate)) || new Date().toISOString();
+    const normalizedBookingEndDate = isAllDay
+      ? getEndOfDayIsoFromIso(normalizedBookingDate)
+      : (toIsoOrNull(toDatetimeLocal(formData.bookingEndDate)) || '');
+
+    if (!normalizedBookingEndDate) {
+      setMessage({ text: 'Debe ingresar una fecha y hora de fin válida.', type: 'error' });
+      return;
+    }
+
+    if (new Date(normalizedBookingEndDate).getTime() <= new Date(normalizedBookingDate).getTime()) {
+      setMessage({ text: 'La fecha y hora de fin debe ser mayor a la fecha y hora de inicio.', type: 'error' });
+      return;
+    }
+
     setLoading(true);
 
     try {
       const url = isCreating ? ENDPOINTS.resourceBookings : `${ENDPOINTS.resourceBookings}/${selectedBooking?.id}`;
       const method = isCreating ? 'POST' : 'PUT';
-      const normalizedBookingDate = toIsoOrNull(toDatetimeLocal(formData.bookingDate)) || new Date().toISOString();
-      const normalizedBookingEndDate = toIsoOrNull(toDatetimeLocal(formData.bookingEndDate)) || new Date().toISOString();
 
       const payload = {
         id: isCreating ? 0 : selectedBooking?.id || 0,
@@ -331,10 +377,23 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
         fetchBookings();
       } else {
         const errorText = await response.text();
-        setMessage({ 
-          text: errorText || `Error ${response.status}: No se pudo guardar la reserva`, 
-          type: 'error' 
-        });
+        
+        try {
+          const errorJson = JSON.parse(errorText);
+          if (errorJson.message === 'El recurso no está disponible en el horario seleccionado.') {
+            alert(errorJson.message);
+            return;
+          }
+          setMessage({ 
+            text: errorJson.message || `Error ${response.status}: No se pudo guardar la reserva`, 
+            type: 'error' 
+          });
+        } catch {
+          setMessage({ 
+            text: errorText || `Error ${response.status}: No se pudo guardar la reserva`, 
+            type: 'error' 
+          });
+        }
       }
     } catch (error) {
       console.error('Error saving booking:', error);
@@ -376,12 +435,47 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
     }
   };
 
-  const handleCancel = () => {
-    setIsCreating(false);
-    setIsEditing(false);
-    setSelectedBooking(null);
-    setMessage(null);
+  const getResourceDisplayName = (booking: ResourceBooking) => {
+    if (booking.resourceName && booking.resourceName.trim().length > 0) {
+      return booking.resourceName;
+    }
+
+    const resource = resources.find(item => item.id === booking.resourceId);
+    return resource?.name || `Recurso #${booking.resourceId}`;
   };
+
+  const getPropertyDisplayName = (booking: ResourceBooking) => {
+    const property = properties.find(item => item.id === booking.propertyId);
+    if (property) {
+      return `${property.code} - Torre ${property.tower}`;
+    }
+
+    if (booking.propertyCode && booking.propertyCode.trim().length > 0) {
+      return booking.propertyCode;
+    }
+
+    return `Prop #${booking.propertyId}`;
+  };
+
+  const filteredBookings = bookings.filter((booking) => {
+    const matchesStatus = statusFilter === 'all' || booking.statusId === Number(statusFilter);
+    const normalizedSearch = resourceNameFilter.trim().toLowerCase();
+    const matchesResourceName = normalizedSearch.length === 0 ||
+      getResourceDisplayName(booking).toLowerCase().includes(normalizedSearch);
+    
+    let matchesDateRange = true;
+    if (dateFromFilter || dateToFilter) {
+      const bookingDate = new Date(booking.bookingDate).toISOString().split('T')[0];
+      if (dateFromFilter && bookingDate < dateFromFilter) {
+        matchesDateRange = false;
+      }
+      if (dateToFilter && bookingDate > dateToFilter) {
+        matchesDateRange = false;
+      }
+    }
+
+    return matchesStatus && matchesResourceName && matchesDateRange;
+  });
 
   return (
     <div style={{ padding: '20px' }}>
@@ -439,6 +533,101 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
         >
           + Nueva Reserva
         </button>
+      )}
+
+      {/* Filters */}
+      {!isCreating && !isEditing && (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr 1fr 1fr',
+            gap: '12px',
+            marginBottom: '20px',
+            backgroundColor: '#f8f9fa',
+            padding: '12px',
+            borderRadius: '8px',
+            border: '1px solid #e0e0e0',
+          }}
+        >
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
+              Filtrar por Estado
+            </label>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '8px',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                fontSize: '14px',
+              }}
+            >
+              <option value="all">Todos los estados</option>
+              {statusOptions.map((option) => (
+                <option key={option.value} value={String(option.value)}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
+              Filtrar por Recurso
+            </label>
+            <input
+              type="text"
+              value={resourceNameFilter}
+              onChange={(e) => setResourceNameFilter(e.target.value)}
+              placeholder="Ejemplo: Piscina"
+              style={{
+                width: '100%',
+                padding: '8px',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                fontSize: '14px',
+              }}
+            />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
+              Fecha Desde
+            </label>
+            <input
+              type="date"
+              value={dateFromFilter}
+              onChange={(e) => setDateFromFilter(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '8px',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                fontSize: '14px',
+              }}
+            />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
+              Fecha Hasta
+            </label>
+            <input
+              type="date"
+              value={dateToFilter}
+              onChange={(e) => setDateToFilter(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '8px',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                fontSize: '14px',
+              }}
+            />
+          </div>
+        </div>
       )}
 
       {/* Create/Edit Form */}
@@ -516,11 +705,19 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
                 value={toDatetimeLocal(formData.bookingDate)}
                 onChange={(e) => {
                   const isoValue = toIsoOrNull(e.target.value) || new Date().toISOString();
-                  setFormData(prev => ({
-                    ...prev,
-                    bookingDate: isoValue,
-                    bookingEndDate: getEndOfDayIsoFromIso(isoValue),
-                  }));
+                  setFormData(prev => {
+                    const nextBookingEndDate = isAllDay
+                      ? getEndOfDayIsoFromIso(isoValue)
+                      : (new Date(prev.bookingEndDate).getTime() <= new Date(isoValue).getTime()
+                        ? getIsoPlusOneHour(isoValue)
+                        : prev.bookingEndDate);
+
+                    return {
+                      ...prev,
+                      bookingDate: isoValue,
+                      bookingEndDate: nextBookingEndDate,
+                    };
+                  });
                 }}
                 required
                 style={{
@@ -534,6 +731,38 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
             </div>
 
             <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
+                <input
+                  type="checkbox"
+                  checked={isAllDay}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setIsAllDay(checked);
+
+                    setFormData(prev => {
+                      if (checked) {
+                        return {
+                          ...prev,
+                          bookingEndDate: getEndOfDayIsoFromIso(prev.bookingDate),
+                        };
+                      }
+
+                      if (new Date(prev.bookingEndDate).getTime() <= new Date(prev.bookingDate).getTime()) {
+                        return {
+                          ...prev,
+                          bookingEndDate: getIsoPlusOneHour(prev.bookingDate),
+                        };
+                      }
+
+                      return prev;
+                    });
+                  }}
+                />
+                Todo el dia
+              </label>
+            </div>
+
+            <div style={{ marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px', color: 'rgb(68,68,68)', fontWeight: 'bold' }}>
                 Fecha y Hora de Fin *
               </label>
@@ -541,7 +770,19 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
                 type="datetime-local"
                 name="bookingEndDate"
                 value={toDatetimeLocal(formData.bookingEndDate)}
-                readOnly
+                onChange={(e) => {
+                  const isoValue = toIsoOrNull(e.target.value);
+                  if (!isoValue) {
+                    return;
+                  }
+
+                  setFormData(prev => ({
+                    ...prev,
+                    bookingEndDate: isoValue,
+                  }));
+                }}
+                disabled={isAllDay}
+                min={toDatetimeLocal(formData.bookingDate)}
                 required
                 style={{
                   width: '100%',
@@ -549,7 +790,6 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
                   border: '1px solid #ddd',
                   borderRadius: '4px',
                   fontSize: '14px',
-                  backgroundColor: '#f1f3f5',
                 }}
               />
             </div>
@@ -676,21 +916,6 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
               >
                 {loading ? (isEditing ? 'Actualizando...' : 'Guardando...') : (isEditing ? 'Actualizar' : 'Guardar')}
               </button>
-              <button
-                type="button"
-                onClick={handleCancel}
-                style={{
-                  padding: '10px 20px',
-                  backgroundColor: '#6c757d',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                }}
-              >
-                Cancelar
-              </button>
             </div>
           </form>
         </div>
@@ -699,8 +924,8 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
       {/* Bookings List */}
       {loading && bookings.length === 0 ? (
         <p>Cargando reservas...</p>
-      ) : bookings.length === 0 ? (
-        <p>No hay reservas disponibles.</p>
+      ) : filteredBookings.length === 0 ? (
+        <p>{bookings.length === 0 ? 'No hay reservas disponibles.' : 'No hay reservas que coincidan con los filtros.'}</p>
       ) : (
         <div style={{ overflowX: 'auto' }}>
           <table style={{
@@ -719,7 +944,6 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
                 <th style={{ padding: '12px', textAlign: 'left' }}>Personas</th>
                 {!showMyBookings && isAdmin && (
                   <>
-                    <th style={{ padding: '12px', textAlign: 'left' }}>Usuario</th>
                     <th style={{ padding: '12px', textAlign: 'left' }}>Propiedad</th>
                   </>
                 )}
@@ -730,13 +954,13 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
               </tr>
             </thead>
             <tbody>
-              {bookings.map((booking, index) => (
+              {filteredBookings.map((booking, index) => (
                 <tr key={booking.id} style={{ 
                   backgroundColor: index % 2 === 0 ? '#f8f9fa' : 'white',
                   borderBottom: '1px solid #dee2e6',
                 }}>
                   <td style={{ padding: '12px', color: 'rgb(68,68,68)' }}>
-                    {booking.resourceName || `Recurso #${booking.resourceId}`}
+                    {getResourceDisplayName(booking)}
                   </td>
                   <td style={{ padding: '12px', color: 'rgb(68,68,68)' }}>
                     {new Date(booking.bookingDate).toLocaleString()}
@@ -750,10 +974,7 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
                   {!showMyBookings && isAdmin && (
                     <>
                       <td style={{ padding: '12px', color: 'rgb(68,68,68)' }}>
-                        {booking.userName || `Usuario #${booking.userId}`}
-                      </td>
-                      <td style={{ padding: '12px', color: 'rgb(68,68,68)' }}>
-                        {booking.propertyCode || `Prop #${booking.propertyId}`}
+                        {getPropertyDisplayName(booking)}
                       </td>
                     </>
                   )}

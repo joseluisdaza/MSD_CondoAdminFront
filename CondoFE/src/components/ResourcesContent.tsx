@@ -235,7 +235,7 @@ const ResourcesContent: React.FC<ResourcesContentProps> = ({ token }) => {
         id: isCreating ? 0 : selectedResource?.id || 0,
         ...formData,
         startDate: new Date(formData.startDate).toISOString()
-      };
+      }; 
 
       const response = await fetch(url, {
         method,

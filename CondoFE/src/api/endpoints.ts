@@ -36,5 +36,8 @@ export const ENDPOINTS = {
   incidents: `${API_BASE_URL}/Incidents`,
   myIncidents: `${API_BASE_URL}/Incidents/MyIncidents`,
 
-  // Add other endpoints here
+  // Reports endpoints
+  reports: `${API_BASE_URL}/Reports`,
+  executeReport: (reportId: number) => `${API_BASE_URL}/Reports/${reportId}/Execute`,
+  reportStyle: (styleId: number) => `${API_BASE_URL}/Reports/Styles/${styleId}`,
 };

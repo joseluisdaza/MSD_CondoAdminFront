@@ -461,7 +461,7 @@ const LandingPage: React.FC<{ token: string; onLogout: () => void }> = ({ token,
         {useRoutes([
           { path: '/', element: <InicioContent debts={debts} announcements={announcements} loading={loading} userRoles={userRoles} /> },
           { path: '/expensas', element: <ExpensasContent token={token} /> },
-          { path: '/reportes', element: <ReportesContent /> },
+          { path: '/reportes', element: <ReportesContent token={token} /> },
           { path: '/pagos', element: <PagosContent token={token} /> },
           { path: '/usuario', element: <UsuarioContent token={token} /> },
           { path: '/usuarios', element: <UsuariosContent token={token} /> },

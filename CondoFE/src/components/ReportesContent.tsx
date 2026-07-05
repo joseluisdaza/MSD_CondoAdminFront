@@ -5,6 +5,13 @@ interface Report {
   id: number;
   reportName: string;
   displayName: string;
+  params: ReportParam[];
+}
+
+interface ReportParam {
+  paramName: string;
+  paramType: 'INT' | 'DOUBLE' | 'STRING' | 'DATE' | 'BOOL';
+  paramDescription: string;
 }
 
 interface ReportContent {
@@ -42,8 +49,10 @@ interface ReportesContentProps {
 const ReportesContent: React.FC<ReportesContentProps> = ({ token }) => {
   const [reports, setReports] = useState<Report[]>([]);
   const [selectedReportId, setSelectedReportId] = useState<number | null>(null);
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [reportData, setReportData] = useState<ReportResult | null>(null);
   const [styles, setStyles] = useState<Map<number, ReportStyle>>(new Map());
+  const [paramValues, setParamValues] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
   const [executing, setExecuting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,6 +74,8 @@ const ReportesContent: React.FC<ReportesContentProps> = ({ token }) => {
         setReports(data);
         if (data.length > 0) {
           setSelectedReportId(data[0].id);
+          setSelectedReport(data[0]);
+          setParamValues({});
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error desconocido');
@@ -75,12 +86,31 @@ const ReportesContent: React.FC<ReportesContentProps> = ({ token }) => {
     fetchReports();
   }, [token]);
 
+  // Actualizar reporte seleccionado cuando cambia el ID
+  useEffect(() => {
+    if (selectedReportId) {
+      const report = reports.find(r => r.id === selectedReportId);
+      setSelectedReport(report || null);
+      setParamValues({});
+      setReportData(null);
+    }
+  }, [selectedReportId, reports]);
+
   const handleExecuteReport = async () => {
     if (!selectedReportId) return;
 
     try {
       setExecuting(true);
       setError(null);
+      
+      // Construir el objeto filters con los parámetros ingresados
+      const filters: Record<string, any> = {};
+      if (selectedReport?.params) {
+        selectedReport.params.forEach(param => {
+          filters[param.paramName] = paramValues[param.paramName];
+        });
+      }
+      
       const response = await fetch(ENDPOINTS.executeReport(selectedReportId), {
         method: 'POST',
         headers: {
@@ -88,7 +118,7 @@ const ReportesContent: React.FC<ReportesContentProps> = ({ token }) => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ filters: {} }),
+        body: JSON.stringify({ filters }),
       });
       if (!response.ok) throw new Error('Error al ejecutar reporte');
       const data = await response.json();
@@ -127,6 +157,87 @@ const ReportesContent: React.FC<ReportesContentProps> = ({ token }) => {
       setError(err instanceof Error ? err.message : 'Error desconocido');
     } finally {
       setExecuting(false);
+    }
+  };
+
+  const renderParamInput = (param: ReportParam) => {
+    const value = paramValues[param.paramName];
+    const commonInputStyle = {
+      padding: '8px 12px',
+      borderRadius: '4px',
+      border: '1px solid rgb(100, 100, 100)',
+      backgroundColor: 'white',
+      color: 'rgb(68, 68, 68)',
+      fontSize: '14px',
+      width: '100%',
+    };
+
+    const handleChange = (newValue: any) => {
+      setParamValues(prev => ({
+        ...prev,
+        [param.paramName]: newValue
+      }));
+    };
+
+    switch (param.paramType) {
+      case 'INT':
+        return (
+          <input
+            type="number"
+            step="1"
+            value={value || ''}
+            onChange={(e) => handleChange(e.target.value ? parseInt(e.target.value) : null)}
+            placeholder="Ingrese un número entero"
+            style={commonInputStyle}
+          />
+        );
+      case 'DOUBLE':
+        return (
+          <input
+            type="number"
+            step="0.01"
+            value={value || ''}
+            onChange={(e) => handleChange(e.target.value ? parseFloat(e.target.value) : null)}
+            placeholder="Ingrese un número decimal"
+            style={commonInputStyle}
+          />
+        );
+      case 'STRING':
+        return (
+          <input
+            type="text"
+            value={value || ''}
+            onChange={(e) => handleChange(e.target.value || null)}
+            placeholder="Ingrese un texto"
+            style={commonInputStyle}
+          />
+        );
+      case 'DATE':
+        return (
+          <input
+            type="date"
+            value={value || ''}
+            onChange={(e) => handleChange(e.target.value || null)}
+            style={commonInputStyle}
+          />
+        );
+      case 'BOOL':
+        return (
+          <select
+            value={value === null ? '' : value.toString()}
+            onChange={(e) => {
+              if (e.target.value === '') handleChange(null);
+              else handleChange(e.target.value === 'true');
+            }}
+            style={commonInputStyle}
+          >
+            <option value="">Seleccione...</option>
+            <option value="true">Verdadero</option>
+            <option value="false">Falso</option>
+          </select>
+        );
+      default:
+        return <input type="text" placeholder="Tipo desconocido" style={commonInputStyle} />;
     }
   };
 
@@ -279,6 +390,48 @@ const ReportesContent: React.FC<ReportesContentProps> = ({ token }) => {
           {executing ? 'Ejecutando...' : 'Ejecutar'}
         </button>
       </div>
+
+      {/* Grid de parámetros */}
+      {selectedReport && selectedReport.params && selectedReport.params.length > 0 && (
+        <div style={{
+          marginBottom: '24px',
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          padding: '16px',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+        }}>
+          <h3 style={{
+            fontSize: '16px',
+            fontWeight: 600,
+            marginBottom: '16px',
+            color: 'rgb(68, 68, 68)',
+          }}>
+            Parámetros del Reporte
+          </h3>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '16px',
+          }}>
+            {selectedReport.params.map(param => (
+              <div key={param.paramName} style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+              }}>
+                <label style={{
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  color: 'rgb(68, 68, 68)',
+                }}>
+                  {param.paramDescription}
+                </label>
+                {renderParamInput(param)}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {error && (
         <div style={{

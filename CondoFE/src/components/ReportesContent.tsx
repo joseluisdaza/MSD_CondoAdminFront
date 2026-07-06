@@ -323,6 +323,107 @@ const ReportesContent: React.FC<ReportesContentProps> = ({ token }) => {
     );
   };
 
+  const renderHeaders = () => {
+    if (!reportData?.headers || reportData.headers.length === 0) return null;
+
+    const result: React.ReactNode[] = [];
+    let i = 0;
+    let resultIndex = 0;
+
+    while (i < reportData.headers.length) {
+      const header = reportData.headers[i];
+
+      // Si isTable es false, renderizar como texto normal
+      if (!header.isTable) {
+        result.push(
+          <div key={`header-${resultIndex}`}>
+            {renderContent(header)}
+          </div>
+        );
+        resultIndex++;
+        i++;
+        continue;
+      }
+
+      // Si isTable es true, combinar con el siguiente header si también es tabla
+      if (header.isTable && Array.isArray(header.text) && header.text.length > 0) {
+        const headerData = header.text[0]; // Primer objeto del array
+        const headerKeys = Object.keys(headerData);
+
+        let valueData: Record<string, any> = {};
+        let nextHeader: ReportContent | null = null;
+
+        // Buscar el siguiente header con isTable true
+        if (
+          i + 1 < reportData.headers.length &&
+          reportData.headers[i + 1].isTable &&
+          Array.isArray(reportData.headers[i + 1].text) &&
+          reportData.headers[i + 1].text.length > 0
+        ) {
+          nextHeader = reportData.headers[i + 1];
+          valueData = nextHeader.text[0];
+          i += 2; // Saltar el siguiente header ya que lo procesamos
+        } else {
+          i++;
+        }
+
+        // Obtener estilos del primer y segundo header
+        const headerStyle = styles.get(header.styleId);
+        const valueStyle = nextHeader ? styles.get(nextHeader.styleId) : undefined;
+        
+        const headerCellStyle = styleToCSS(headerStyle);
+        const valueCellStyle = styleToCSS(valueStyle);
+
+        result.push(
+          <table
+            key={`header-table-${resultIndex}`}
+            style={{
+              width: '100%',
+              borderCollapse: 'collapse',
+              marginTop: 16,
+              marginBottom: 16,
+            }}
+          >
+            <tbody>
+              {headerKeys.map((key, idx) => (
+                <tr key={key} style={{ backgroundColor: idx % 2 === 0 ? 'rgba(244, 228, 69, 0.2)' : 'transparent' }}>
+                  <td
+                    style={{
+                      border: '1px solid rgb(100, 100, 100)',
+                      padding: '8px 12px',
+                      fontWeight: 600,
+                      width: '50%',
+                      color: 'rgb(68, 68, 68)',
+                      ...headerCellStyle,
+                    }}
+                  >
+                    {String(headerData[key] || key)}
+                  </td>
+                  <td
+                    style={{
+                      border: '1px solid rgb(100, 100, 100)',
+                      padding: '8px 12px',
+                      width: '50%',
+                      color: 'rgb(68, 68, 68)',
+                      ...valueCellStyle,
+                    }}
+                  >
+                    {String(valueData[key] || '')}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        );
+        resultIndex++;
+      } else {
+        i++;
+      }
+    }
+
+    return <div style={{ marginBottom: '24px' }}>{result}</div>;
+  };
+
   return (
     <div style={{
       padding: '24px',
@@ -470,15 +571,7 @@ const ReportesContent: React.FC<ReportesContentProps> = ({ token }) => {
           </h2>
 
           {/* Headers */}
-          {reportData.headers && reportData.headers.length > 0 && (
-            <div style={{ marginBottom: '24px' }}>
-              {reportData.headers.map((header, idx) => (
-                <div key={idx}>
-                  {renderContent(header)}
-                </div>
-              ))}
-            </div>
-          )}
+          {renderHeaders()}
 
           {/* Sections */}
           {reportData.sections && reportData.sections.length > 0 && (

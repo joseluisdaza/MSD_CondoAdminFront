@@ -278,7 +278,7 @@ const ReportesContent: React.FC<ReportesContentProps> = ({ token }) => {
   const renderTable = (data: object[], style?: ReportStyle) => {
     if (!Array.isArray(data) || data.length === 0) return null;
     const headers = Object.keys(data[0]);
-    const tableStyle = styleToCSS(style);
+    const tableStyle = styleToCSSExcludingWidth(style);
     
     return (
       <table style={{
@@ -297,6 +297,7 @@ const ReportesContent: React.FC<ReportesContentProps> = ({ token }) => {
                 textAlign: 'left',
                 fontWeight: 600,
                 color: 'rgb(68, 68, 68)',
+                ...styleToCSSExcludingWidth(style),
               }}>
                 {header}
               </th>
@@ -311,6 +312,7 @@ const ReportesContent: React.FC<ReportesContentProps> = ({ token }) => {
                   border: '1px solid rgb(100, 100, 100)',
                   padding: '8px 12px',
                   color: 'rgb(68, 68, 68)',
+                  ...styleToCSSExcludingWidth(style),
                 }}>
                   {String((row as Record<string, any>)[header] || '')}
                 </td>
@@ -330,13 +332,13 @@ const ReportesContent: React.FC<ReportesContentProps> = ({ token }) => {
       return renderTable(item.text, itemStyle);
     }
     return (
-      <p style={{ 
+      <div style={{ 
         color: 'rgb(68, 68, 68)', 
         lineHeight: 1.6,
         ...cssStyle 
       }}>
         {typeof item.text === 'string' ? item.text : JSON.stringify(item.text)}
-      </p>
+      </div>
     );
   };
 

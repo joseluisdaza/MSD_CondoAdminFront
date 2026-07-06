@@ -258,6 +258,23 @@ const ReportesContent: React.FC<ReportesContentProps> = ({ token }) => {
     return css;
   };
 
+  const styleToCSSExcludingWidth = (reportStyle: ReportStyle | undefined): CSSProperties => {
+    if (!reportStyle) return {};
+    
+    const css: CSSProperties = {};
+    if (reportStyle.bold) css.fontWeight = 'bold';
+    if (reportStyle.italic) css.fontStyle = 'italic';
+    if (reportStyle.underline) css.textDecoration = 'underline';
+    if (reportStyle.fontSize) css.fontSize = `${reportStyle.fontSize}px`;
+    if (reportStyle.fontColor) css.color = reportStyle.fontColor;
+    if (reportStyle.backgroundColor) css.backgroundColor = reportStyle.backgroundColor;
+    if (reportStyle.horizontalAlignment) css.textAlign = reportStyle.horizontalAlignment as any;
+    if (reportStyle.verticalAlignment) css.verticalAlign = reportStyle.verticalAlignment as any;
+    // No incluir widthPercentage para celdas de tabla
+    
+    return css;
+  };
+
   const renderTable = (data: object[], style?: ReportStyle) => {
     if (!Array.isArray(data) || data.length === 0) return null;
     const headers = Object.keys(data[0]);
@@ -371,8 +388,8 @@ const ReportesContent: React.FC<ReportesContentProps> = ({ token }) => {
         const headerStyle = styles.get(header.styleId);
         const valueStyle = nextHeader ? styles.get(nextHeader.styleId) : undefined;
         
-        const headerCellStyle = styleToCSS(headerStyle);
-        const valueCellStyle = styleToCSS(valueStyle);
+        const headerCellStyle = styleToCSSExcludingWidth(headerStyle);
+        const valueCellStyle = styleToCSSExcludingWidth(valueStyle);
 
         result.push(
           <table

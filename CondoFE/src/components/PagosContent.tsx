@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ENDPOINTS } from '../api/endpoints';
+import ReportViewer from './ReportViewer';
+import type { ReportResult } from '../utils/reportUtils';
 
 interface Property {
   id: number;
@@ -42,6 +44,8 @@ const PagosContent: React.FC<PagosContentProps> = ({ token }) => {
   const [sortField, setSortField] = useState<SortField>('startDate');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [reportData, setReportData] = useState<ReportResult | null>(null);
+  const [executingReport, setExecutingReport] = useState(false);
 
   // Fetch user properties
   const fetchUserProperties = useCallback(async () => {
@@ -153,6 +157,48 @@ const PagosContent: React.FC<PagosContentProps> = ({ token }) => {
     } catch (error) {
       console.error('Error processing payment:', error);
       setMessage({ text: 'Error de conexión al procesar el pago', type: 'error' });
+    }
+  };
+
+  // Execute receipt report
+  const executeReceiptReport = async (expenseId: number) => {
+    try {
+      setExecutingReport(true);
+      setMessage(null);
+
+      const response = await fetch(ENDPOINTS.reportByName('ReciboPagoDeExpensa'), {
+        method: 'GET',
+        headers: {
+          'accept': 'text/plain',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error('Error al cargar información del reporte');
+      const reportInfo = await response.json();
+
+      // Execute the report with the expense ID
+      const executeResponse = await fetch(ENDPOINTS.executeReport(reportInfo.id), {
+        method: 'POST',
+        headers: {
+          'accept': 'text/plain',
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ filters: { expenseId } }),
+      });
+
+      if (!executeResponse.ok) throw new Error('Error al ejecutar el reporte');
+      const data = await executeResponse.json();
+      setReportData(data);
+    } catch (error) {
+      console.error('Error executing report:', error);
+      setMessage({ 
+        text: error instanceof Error ? error.message : 'Error al ejecutar el reporte', 
+        type: 'error' 
+      });
+    } finally {
+      setExecutingReport(false);
     }
   };
 
@@ -397,24 +443,42 @@ const PagosContent: React.FC<PagosContentProps> = ({ token }) => {
                       {expense.interestRate.toFixed(1)}%
                     </td>
                     <td style={{ padding: '12px', textAlign: 'center' }}>
-                      {expense.statusId === 1 ? (
+                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                        {expense.statusId === 1 ? (
+                          <button
+                            onClick={() => payExpense(expense.id)}
+                            style={{
+                              padding: '6px 12px',
+                              backgroundColor: '#28a745',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              fontSize: '12px',
+                            }}
+                          >
+                            Pagar
+                          </button>
+                        ) : (
+                          <span style={{ color: '#6c757d', fontSize: '12px' }}>N/A</span>
+                        )}
                         <button
-                          onClick={() => payExpense(expense.id)}
+                          onClick={() => executeReceiptReport(expense.id)}
+                          disabled={executingReport}
+                          title="Ver recibo de pago"
                           style={{
                             padding: '6px 12px',
-                            backgroundColor: '#28a745',
+                            backgroundColor: executingReport ? 'rgb(150, 150, 150)' : 'rgb(68, 68, 68)',
                             color: 'white',
                             border: 'none',
                             borderRadius: '4px',
-                            cursor: 'pointer',
+                            cursor: executingReport ? 'not-allowed' : 'pointer',
                             fontSize: '12px',
                           }}
                         >
-                          Pagar
+                          📄 Recibo
                         </button>
-                      ) : (
-                        <span style={{ color: '#6c757d', fontSize: '12px' }}>N/A</span>
-                      )}
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -422,6 +486,15 @@ const PagosContent: React.FC<PagosContentProps> = ({ token }) => {
             </tbody>
           </table>
         </div>
+      )}
+
+      {/* Report Viewer Modal */}
+      {reportData && (
+        <ReportViewer
+          token={token}
+          reportData={reportData}
+          onClose={() => setReportData(null)}
+        />
       )}
     </div>
   );

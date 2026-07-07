@@ -1,46 +1,16 @@
-import React, { useState, useEffect, CSSProperties } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ENDPOINTS } from '../api/endpoints';
-
-interface Report {
-  id: number;
-  reportName: string;
-  displayName: string;
-  params: ReportParam[];
-}
-
-interface ReportParam {
-  paramName: string;
-  paramType: 'INT' | 'DOUBLE' | 'STRING' | 'DATE' | 'BOOL';
-  paramDescription: string;
-}
-
-interface ReportContent {
-  text: string | object[];
-  styleId: number;
-  isTable: boolean;
-}
-
-interface ReportResult {
-  title: string;
-  styleId: number;
-  headers: ReportContent[];
-  sections: ReportContent[];
-  footers: ReportContent[];
-}
-
-interface ReportStyle {
-  id: number;
-  styleName: string;
-  bold: boolean;
-  italic: boolean;
-  underline: boolean;
-  fontSize: number;
-  fontColor: string;
-  backgroundColor: string;
-  horizontalAlignment: string;
-  verticalAlignment: string;
-  widthPercentage: number;
-}
+import type { 
+  Report,
+  ReportParam,
+  ReportContent,
+  ReportResult,
+  ReportStyle,
+} from '../utils/reportUtils';
+import { 
+  styleToCSS,
+  styleToCSSExcludingWidth,
+} from '../utils/reportUtils';
 
 interface ReportesContentProps {
   token: string;
@@ -241,40 +211,6 @@ const ReportesContent: React.FC<ReportesContentProps> = ({ token }) => {
     }
   };
 
-  const styleToCSS = (reportStyle: ReportStyle | undefined): CSSProperties => {
-    if (!reportStyle) return {};
-    
-    const css: CSSProperties = {};
-    if (reportStyle.bold) css.fontWeight = 'bold';
-    if (reportStyle.italic) css.fontStyle = 'italic';
-    if (reportStyle.underline) css.textDecoration = 'underline';
-    if (reportStyle.fontSize) css.fontSize = `${reportStyle.fontSize}px`;
-    if (reportStyle.fontColor) css.color = reportStyle.fontColor;
-    if (reportStyle.backgroundColor) css.backgroundColor = reportStyle.backgroundColor;
-    if (reportStyle.horizontalAlignment) css.textAlign = reportStyle.horizontalAlignment as any;
-    if (reportStyle.verticalAlignment) css.verticalAlign = reportStyle.verticalAlignment as any;
-    if (reportStyle.widthPercentage) css.width = `${reportStyle.widthPercentage}%`;
-    
-    return css;
-  };
-
-  const styleToCSSExcludingWidth = (reportStyle: ReportStyle | undefined): CSSProperties => {
-    if (!reportStyle) return {};
-    
-    const css: CSSProperties = {};
-    if (reportStyle.bold) css.fontWeight = 'bold';
-    if (reportStyle.italic) css.fontStyle = 'italic';
-    if (reportStyle.underline) css.textDecoration = 'underline';
-    if (reportStyle.fontSize) css.fontSize = `${reportStyle.fontSize}px`;
-    if (reportStyle.fontColor) css.color = reportStyle.fontColor;
-    if (reportStyle.backgroundColor) css.backgroundColor = reportStyle.backgroundColor;
-    if (reportStyle.horizontalAlignment) css.textAlign = reportStyle.horizontalAlignment as any;
-    if (reportStyle.verticalAlignment) css.verticalAlign = reportStyle.verticalAlignment as any;
-    // No incluir widthPercentage para celdas de tabla
-    
-    return css;
-  };
-
   const renderTable = (data: object[], style?: ReportStyle) => {
     if (!Array.isArray(data) || data.length === 0) return null;
     const headers = Object.keys(data[0]);
@@ -366,7 +302,7 @@ const ReportesContent: React.FC<ReportesContentProps> = ({ token }) => {
 
       // Si isTable es true, combinar con el siguiente header si también es tabla
       if (header.isTable && Array.isArray(header.text) && header.text.length > 0) {
-        const headerData = header.text[0]; // Primer objeto del array
+        const headerData = (header.text[0] as Record<string, any>); // Primer objeto del array
         const headerKeys = Object.keys(headerData);
 
         let valueData: Record<string, any> = {};
@@ -380,7 +316,7 @@ const ReportesContent: React.FC<ReportesContentProps> = ({ token }) => {
           reportData.headers[i + 1].text.length > 0
         ) {
           nextHeader = reportData.headers[i + 1];
-          valueData = nextHeader.text[0];
+          valueData = (nextHeader.text[0] as Record<string, any>) || {};
           i += 2; // Saltar el siguiente header ya que lo procesamos
         } else {
           i++;

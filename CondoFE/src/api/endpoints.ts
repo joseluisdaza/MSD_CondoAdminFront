@@ -40,4 +40,5 @@ export const ENDPOINTS = {
   reports: `${API_BASE_URL}/Reports`,
   executeReport: (reportId: number) => `${API_BASE_URL}/Reports/${reportId}/Execute`,
   reportStyle: (styleId: number) => `${API_BASE_URL}/Reports/Styles/${styleId}`,
+  reportByName: (reportName: string) => `${API_BASE_URL}/Reports/ByName/${reportName}`,
 };

@@ -18,6 +18,7 @@ import ServicePaymentsContent from '../components/ServicePaymentsContent';
 import RolesContent from '../components/RolesContent';
 import ResourcesContent from '../components/ResourcesContent';
 import ResourceBookingsContent from '../components/ResourceBookingsContent';
+import NotFoundPage from './NotFoundPage';
 
 interface Debt {
   code: string;
@@ -446,6 +447,7 @@ const LandingPage: React.FC<{ token: string; onLogout: () => void }> = ({ token,
           { path: '/roles', element: <RolesContent token={token} /> },
           { path: '/recursos', element: <ResourcesContent token={token} /> },
           { path: '/reservas', element: <ResourceBookingsContent token={token} /> },
+          { path: '*', element: <NotFoundPage /> },
         ])}
       </main>
       {/* Responsive styles */}

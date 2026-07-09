@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ENDPOINTS } from '../api/endpoints';
 import { Link, useLocation, useRoutes } from 'react-router-dom';
 import { useUserRole, canViewModule } from '../hooks/useUserRole';
+import { protectedElement } from '../utils/protectedRoute';
 import InicioContent from '../components/InicioContent';
 import ExpensasContent from '../components/ExpensasContent';
 import ReportesContent from '../components/ReportesContent';
@@ -432,21 +433,21 @@ const LandingPage: React.FC<{ token: string; onLogout: () => void }> = ({ token,
       >
         {useRoutes([
           { path: '/', element: <InicioContent debts={debts} announcements={announcements} loading={loading} userRoles={userRoles} /> },
-          { path: '/expensas', element: <ExpensasContent token={token} /> },
-          { path: '/reportes', element: <ReportesContent token={token} /> },
-          { path: '/pagos', element: <PagosContent token={token} /> },
-          { path: '/usuario', element: <UsuarioContent token={token} /> },
-          { path: '/usuarios', element: <UsuariosContent token={token} /> },
-          { path: '/propiedades', element: <PropiedadesContent token={token} /> },
-          { path: '/tipo-propiedades', element: <PropertyTypesContent token={token} /> },
-          { path: '/categorias-expensas', element: <ExpenseCategoriesContent token={token} /> },
-          { path: '/duenos-propiedades', element: <PropertyOwnersContent token={token} /> },
-          { path: '/tipos-servicio', element: <ServiceTypesContent token={token} /> },
-          { path: '/expensas-servicio', element: <ServiceExpensesContent token={token} /> },
-          { path: '/pagos-servicio', element: <ServicePaymentsContent token={token} /> },
-          { path: '/roles', element: <RolesContent token={token} /> },
-          { path: '/recursos', element: <ResourcesContent token={token} /> },
-          { path: '/reservas', element: <ResourceBookingsContent token={token} /> },
+          { path: '/expensas', element: protectedElement(ExpensasContent, 'expensas', userRoles, { token }) },
+          { path: '/reportes', element: protectedElement(ReportesContent, 'reportes', userRoles, { token }) },
+          { path: '/pagos', element: protectedElement(PagosContent, 'pagos', userRoles, { token }) },
+          { path: '/usuario', element: protectedElement(UsuarioContent, 'usuario', userRoles, { token }) },
+          { path: '/usuarios', element: protectedElement(UsuariosContent, 'usuarios', userRoles, { token }) },
+          { path: '/propiedades', element: protectedElement(PropiedadesContent, 'propiedades', userRoles, { token }) },
+          { path: '/tipo-propiedades', element: protectedElement(PropertyTypesContent, 'tipo-propiedades', userRoles, { token }) },
+          { path: '/categorias-expensas', element: protectedElement(ExpenseCategoriesContent, 'categorias-expensas', userRoles, { token }) },
+          { path: '/duenos-propiedades', element: protectedElement(PropertyOwnersContent, 'duenos-propiedades', userRoles, { token }) },
+          { path: '/tipos-servicio', element: protectedElement(ServiceTypesContent, 'tipos-servicio', userRoles, { token }) },
+          { path: '/expensas-servicio', element: protectedElement(ServiceExpensesContent, 'expensas-servicio', userRoles, { token }) },
+          { path: '/pagos-servicio', element: protectedElement(ServicePaymentsContent, 'pagos-servicio', userRoles, { token }) },
+          { path: '/roles', element: protectedElement(RolesContent, 'roles', userRoles, { token }) },
+          { path: '/recursos', element: protectedElement(ResourcesContent, 'recursos', userRoles, { token }) },
+          { path: '/reservas', element: protectedElement(ResourceBookingsContent, 'reservas', userRoles, { token }) },
           { path: '*', element: <NotFoundPage /> },
         ])}
       </main>

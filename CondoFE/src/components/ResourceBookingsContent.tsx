@@ -403,38 +403,6 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!window.confirm('¿Está seguro de que desea cancelar esta reserva?')) {
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await fetch(`${ENDPOINTS.resourceBookings}/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        setMessage({ text: 'Reserva cancelada exitosamente', type: 'success' });
-        fetchBookings();
-      } else {
-        const errorText = await response.text();
-        setMessage({ 
-          text: errorText || `Error ${response.status}: No se pudo cancelar la reserva`, 
-          type: 'error' 
-        });
-      }
-    } catch (error) {
-      console.error('Error deleting booking:', error);
-      setMessage({ text: 'Error de conexión al cancelar reserva', type: 'error' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const getResourceDisplayName = (booking: ResourceBooking) => {
     if (booking.resourceName && booking.resourceName.trim().length > 0) {
       return booking.resourceName;
@@ -1012,22 +980,6 @@ const ResourceBookingsContent: React.FC<ResourceBookingsContentProps> = ({ token
                       >
                         Editar
                       </button>
-                      {isAdmin && (
-                        <button
-                          onClick={() => handleDelete(booking.id)}
-                          style={{
-                            padding: '5px 10px',
-                            backgroundColor: '#dc3545',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '12px',
-                          }}
-                        >
-                          Cancelar
-                        </button>
-                      )}
                     </div>
                   </td>
                 </tr>
